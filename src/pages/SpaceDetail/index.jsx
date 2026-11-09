@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { spacesData } from '../../data/spaces';
 import BookingForm from '../../components/BookingForm';
 import NotFound from '../NotFound';
+import SpaceImage from '../../components/SpaceImage';
 import { useDocumentTitle } from '../../hooks/useDocumentTitle';
 import { FaMapMarkerAlt, FaClock, FaMoneyBillWave, FaStar } from 'react-icons/fa';
 
@@ -23,19 +24,7 @@ const SpaceDetail = () => {
         <div className="row">
           <div className="col-lg-8">
             <div className="card mb-4">
-              <img 
-                src={space.main_image} 
-                alt={space.name} 
-                className="card-img-top" 
-                style={{
-                  height: '400px', 
-                  objectFit: 'cover',
-                  backgroundColor: '#f8f9fa'
-                }}
-                onError={(e) => {
-                  e.target.src = `https://via.placeholder.com/800x400/0F766E/ffffff?text=${encodeURIComponent(space.name)}`;
-                }}
-              />
+              <SpaceImage src={space.main_image} alt={`Photo of ${space.name}`} name={space.name} ratio="16 / 9" priority />
             </div>
             
             <div className="card mb-4">

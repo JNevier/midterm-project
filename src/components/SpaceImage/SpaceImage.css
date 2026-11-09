@@ -1,0 +1,15 @@
+.space-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  background-color: var(--ss-primary-tint);
+}
+
+.space-image--fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ss-primary);
+  font-size: 2rem;
+}
