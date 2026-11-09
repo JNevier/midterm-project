@@ -5,6 +5,9 @@ import {
   formatDuration,
   getPriceSummary,
   hasBookingConflict,
+  formatBookingDate,
+  formatTime12h,
+  formatTimeRange,
 } from './bookingTime';
 
 describe('getDurationMinutes', () => {
@@ -91,5 +94,40 @@ describe('hasBookingConflict', () => {
     expect(
       hasBookingConflict(cancelled, { spaceId: 1, bookingDate: '2026-11-10', startTime: '09:00', endTime: '13:00' })
     ).toBe(false);
+  });
+});
+
+describe('formatBookingDate', () => {
+  it('shows a readable date on the same calendar day', () => {
+    expect(formatBookingDate('2026-11-10')).toBe('Tue, Nov 10, 2026');
+    expect(formatBookingDate('2026-01-01')).toBe('Thu, Jan 1, 2026');
+  });
+
+  it('builds the date from local parts, not as UTC', () => {
+    // new Date('2026-11-10') is midnight UTC, the previous day west of UTC
+    expect(formatBookingDate('2026-11-10')).toContain('Nov 10');
+  });
+});
+
+describe('formatTime12h', () => {
+  it('converts 24-hour times to 12-hour times', () => {
+    expect(formatTime12h('13:00')).toBe('1:00 PM');
+    expect(formatTime12h('09:05')).toBe('9:05 AM');
+  });
+
+  it('handles midnight and noon', () => {
+    expect(formatTime12h('00:00')).toBe('12:00 AM');
+    expect(formatTime12h('12:00')).toBe('12:00 PM');
+    expect(formatTime12h('23:59')).toBe('11:59 PM');
+  });
+});
+
+describe('formatTimeRange', () => {
+  it('joins start and end', () => {
+    expect(formatTimeRange('09:00', '13:00')).toBe('9:00 AM to 1:00 PM');
+  });
+
+  it('marks an overnight end as the next day', () => {
+    expect(formatTimeRange('22:00', '06:00')).toBe('10:00 PM to 6:00 AM (next day)');
   });
 });
