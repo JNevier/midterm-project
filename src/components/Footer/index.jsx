@@ -7,13 +7,6 @@ const Footer = () => (
       <p className="mb-0">
         Demo project: sample listings and simulated login. Photos and information credited to their owners.
       </p>
-      <a
-        href="https://github.com/JNevier/midterm-project"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        Source code on GitHub
-      </a>
     </div>
   </footer>
 );
