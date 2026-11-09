@@ -6,8 +6,7 @@ const SpaceCard = ({ space }) => {
   const { id, name, location, description, price, main_image, amenities, hours } = space;
 
   return (
-    <div className="col-md-6 col-lg-4 mb-4">
-      <div className="card space-card h-100">
+      <div className="card space-card w-100">
         <img 
           src={main_image} 
           className="card-img-top" 
@@ -18,7 +17,7 @@ const SpaceCard = ({ space }) => {
           }}
         />
         <div className="card-body d-flex flex-column">
-          <h5 className="card-title">{name}</h5>
+          <h3 className="card-title ss-card-title">{name}</h3>
           <p className="card-text text-muted">
             <FaMapMarkerAlt className="me-1" /> {location}
           </p>
@@ -51,7 +50,6 @@ const SpaceCard = ({ space }) => {
           </div>
         </div>
       </div>
-    </div>
   );
 };
 
