@@ -1,7 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useDocumentTitle } from '../../hooks/useDocumentTitle';
 
 const NotFound = () => {
+  useDocumentTitle('Page not found | StudySpot PH');
+
   return (
     <div className="not-found-page">
       <div className="container py-5">

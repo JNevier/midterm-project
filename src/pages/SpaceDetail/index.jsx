@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { spacesData } from '../../data/spaces';
 import BookingForm from '../../components/BookingForm';
 import NotFound from '../NotFound';
+import { useDocumentTitle } from '../../hooks/useDocumentTitle';
 import { FaMapMarkerAlt, FaClock, FaMoneyBillWave, FaStar } from 'react-icons/fa';
 
 const SpaceDetail = () => {
@@ -10,6 +11,7 @@ const SpaceDetail = () => {
   
   // Ensure spaceId is properly parsed as integer
   const space = spacesData.find(s => s.id === parseInt(spaceId));
+  useDocumentTitle(space ? `${space.name} | StudySpot PH` : 'Page not found | StudySpot PH');
 
   if (!space) {
     return <NotFound />;

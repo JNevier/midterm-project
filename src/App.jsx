@@ -9,15 +9,17 @@ import SpaceDetail from './pages/SpaceDetail';
 import Dashboard from './pages/Dashboard';
 import Login from './pages/Login';
 import NotFound from './pages/NotFound';
+import ScrollToTop from './components/ScrollToTop';
 
 function App() {
   return (
     <AuthProvider>
       <BookingProvider>
         <Router>
+          <ScrollToTop />
           <div className="App">
             <Header />
-            <main>
+            <main id="main" tabIndex={-1}>
               <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/space/:spaceId" element={<SpaceDetail />} />
