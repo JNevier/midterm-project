@@ -107,6 +107,27 @@ h3, .h3 {
   padding-block: var(--ss-section-padding);
 }
 
+/* ---------- Page layout: footer stays at the bottom of short pages ---------- */
+.App {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+main {
+  flex: 1;
+}
+
+/* The skip link target is focused by script; it needs no ring of its own */
+#main:focus {
+  outline: none;
+}
+
+/* Sections reached by in-page links clear the sticky header */
+section[id] {
+  scroll-margin-top: 5rem;
+}
+
 /* ---------- Links ---------- */
 a {
   color: var(--ss-primary);
