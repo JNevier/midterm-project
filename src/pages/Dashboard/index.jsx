@@ -4,6 +4,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useDocumentTitle } from '../../hooks/useDocumentTitle';
 import { useBooking } from '../../contexts/BookingContext';
 import ConfirmationModal from '../../components/ConfirmationModal';
+import SpaceImage from '../../components/SpaceImage';
 import { FaCalendar, FaClock, FaUsers, FaTimes, FaExclamationTriangle, FaMapMarkerAlt } from 'react-icons/fa';
 import { spacesData } from '../../data/spaces';
 
@@ -116,16 +117,7 @@ const Dashboard = () => {
                   <div className="card-body">
                     <div className="row align-items-center">
                       <div className="col-md-2">
-                        <img 
-                          src={booking.spaceImage} 
-                          alt={booking.spaceName}
-                          className={`img-fluid rounded ${!isUpcoming ? 'opacity-75' : ''}`}
-                          style={{height: '80px', width: '100%', objectFit: 'cover'}}
-                          onError={(e) => {
-                            const color = isUpcoming ? '0F766E' : '475569';
-                            e.target.src = `https://via.placeholder.com/200x80/${color}/ffffff?text=${encodeURIComponent(booking.spaceName)}`;
-                          }}
-                        />
+                        <SpaceImage src={booking.spaceImage} name={booking.spaceName} ratio="16 / 10" className="rounded" />
                       </div>
                       <div className="col-md-6">
                         <h5 className={`card-title mb-1 ${isUpcoming ? 'text-primary' : 'text-muted'}`}>

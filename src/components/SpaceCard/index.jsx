@@ -1,55 +1,62 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { FaMapMarkerAlt, FaClock, FaMoneyBillWave } from 'react-icons/fa';
+import { FaArrowRight, FaClock, FaMapMarkerAlt } from 'react-icons/fa';
+import SpaceImage from '../SpaceImage';
+import './SpaceCard.css';
+
+const MAX_AMENITY_CHIPS = 3;
 
 const SpaceCard = ({ space }) => {
   const { id, name, location, description, price, main_image, amenities, hours } = space;
+  const shownAmenities = amenities.slice(0, MAX_AMENITY_CHIPS);
+  const moreAmenities = amenities.length - shownAmenities.length;
 
   return (
-      <div className="card space-card w-100">
-        <img 
-          src={main_image} 
-          className="card-img-top" 
-          alt={name}
-          style={{height: '200px', objectFit: 'cover'}}
-          onError={(e) => {
-            e.target.src = `https://via.placeholder.com/400x200/0F766E/ffffff?text=${encodeURIComponent(name)}`;
-          }}
-        />
-        <div className="card-body d-flex flex-column">
-          <h3 className="card-title ss-card-title">{name}</h3>
-          <p className="card-text text-muted">
-            <FaMapMarkerAlt className="me-1" /> {location}
-          </p>
-          <p className="card-text flex-grow-1">{description.substring(0, 100)}...</p>
-          
-          <div className="amenities mb-2">
-            {amenities.slice(0, 3).map((amenity, index) => (
-              <span key={index} className="badge bg-primary me-1 mb-1">
-                {amenity}
-              </span>
-            ))}
-          </div>
+    <article className="space-card ss-card">
+      {/* The title next to the photo already names the space, so the photo is decorative */}
+      <SpaceImage src={main_image} name={name} ratio="16 / 10" className="space-card__image" />
 
-          <div className="mt-auto">
-            <div className="d-flex justify-content-between align-items-center mb-2">
-              <span className="text-success fw-bold">
-                <FaMoneyBillWave className="me-1" />₱{price}/hour
-              </span>
-              <small className="text-muted">
-                <FaClock className="me-1" />{hours}
-              </small>
-            </div>
-            <Link 
-              to={`/space/${id}`} 
-              className="btn btn-primary w-100"
-              state={{ from: 'homepage' }}
-            >
-              View Details & Book
-            </Link>
-          </div>
+      <div className="space-card__body">
+        <h3 className="ss-card-title space-card__title">
+          <Link to={`/space/${id}`} className="stretched-link">
+            {name}
+          </Link>
+        </h3>
+        <p className="space-card__location">
+          <FaMapMarkerAlt aria-hidden="true" />
+          {location}
+        </p>
+        <p className="space-card__description">{description}</p>
+
+        <ul className="space-card__chips">
+          {hours === '24/7' && <li className="ss-chip ss-chip-amber">Open 24/7</li>}
+          {shownAmenities.map((amenity) => (
+            <li key={amenity} className="ss-chip">{amenity}</li>
+          ))}
+          {moreAmenities > 0 && (
+            <li className="ss-chip">
+              +{moreAmenities}
+              <span className="visually-hidden"> more amenities</span>
+            </li>
+          )}
+        </ul>
+
+        <div className="space-card__footer">
+          <p className="space-card__price ss-num">
+            <strong>₱{price}</strong>
+            <span>/hour</span>
+          </p>
+          <p className="space-card__hours">
+            <FaClock aria-hidden="true" />
+            {hours}
+          </p>
+          <span className="space-card__cta" aria-hidden="true">
+            View and book
+            <FaArrowRight />
+          </span>
         </div>
       </div>
+    </article>
   );
 };
 
