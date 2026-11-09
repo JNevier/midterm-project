@@ -51,7 +51,7 @@ export const BookingProvider = ({ children }) => {
     );
   };
 
-  const isBookingConflict = (spaceId, bookingDate, startTime, endTime, userEmail) => {
+  const isBookingConflict = (spaceId, bookingDate, startTime, endTime) => {
     const existingBookings = bookings.filter(booking => 
       booking.spaceId === spaceId && 
       booking.bookingDate === bookingDate &&
