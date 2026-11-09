@@ -1,11 +1,131 @@
-.studyspot-header .navbar-brand {
-  font-weight: bold;
-  font-size: 1.5rem;
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 1020;
+  background-color: var(--ss-surface);
+  border-bottom: 1px solid var(--ss-border);
 }
 
-/* The header is still dark until it is redesigned; a white ring keeps focus visible on it */
-.studyspot-header :focus-visible,
-.studyspot-header .nav-link:focus-visible,
-.studyspot-header .btn:focus-visible {
-  outline-color: #fff;
+.site-header__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: 64px;
+}
+
+.site-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.625rem;
+  min-height: 44px;
+  color: var(--ss-ink);
+  font-size: 1.125rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.site-brand:hover {
+  color: var(--ss-ink);
+}
+
+.site-nav__list {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.site-nav__link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 0.75rem;
+  border-radius: var(--ss-radius-sm);
+  color: var(--ss-ink);
+  font-weight: 600;
+  text-decoration: none;
+  transition: var(--ss-transition);
+}
+
+.site-nav__link:hover {
+  color: var(--ss-primary);
+  background-color: var(--ss-primary-tint);
+}
+
+.site-nav__link.active {
+  color: var(--ss-primary);
+}
+
+.site-nav__toggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid var(--ss-input-border);
+  border-radius: var(--ss-radius-sm);
+  background-color: var(--ss-surface);
+  color: var(--ss-ink);
+  font-size: 1.125rem;
+  transition: var(--ss-transition);
+}
+
+.site-nav__toggle:hover {
+  background-color: var(--ss-primary-tint);
+}
+
+/* Below 992px: the items move into a panel opened by the menu button */
+@media (max-width: 991.98px) {
+  .site-nav__toggle {
+    display: inline-flex;
+  }
+
+  .site-nav__list {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+    padding: 0.75rem calc((100vw - 720px) / 2 + 0.75rem);
+    background-color: var(--ss-surface);
+    border-bottom: 1px solid var(--ss-border);
+    box-shadow: var(--ss-shadow-md);
+  }
+
+  .site-nav__list.is-open {
+    display: flex;
+  }
+
+  .site-nav__link,
+  .site-nav__button {
+    width: 100%;
+    min-height: 44px;
+    justify-content: flex-start;
+  }
+
+  .site-nav__button {
+    justify-content: center;
+  }
+}
+
+/* Line the panel items up with the Bootstrap container at each width */
+@media (max-width: 767.98px) {
+  .site-nav__list {
+    padding-inline: calc((100vw - 540px) / 2 + 0.75rem);
+  }
+}
+
+@media (max-width: 575.98px) {
+  .site-nav__list {
+    padding-inline: 0.75rem;
+  }
 }
