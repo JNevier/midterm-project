@@ -1,5 +1,6 @@
 import React, { createContext, useContext } from 'react';
 import { useLocalStorage } from '../hooks/useLocalStorage';
+import { hasBookingConflict } from '../utils/bookingTime';
 
 const BookingContext = createContext();
 
@@ -51,35 +52,9 @@ export const BookingProvider = ({ children }) => {
     );
   };
 
+  // True when the time overlaps any confirmed booking for this space, by anyone
   const isBookingConflict = (spaceId, bookingDate, startTime, endTime) => {
-    const existingBookings = bookings.filter(booking => 
-      booking.spaceId === spaceId && 
-      booking.bookingDate === bookingDate &&
-      booking.status === 'confirmed'
-    );
-
-    return existingBookings.some(booking => {
-      const existingStart = booking.startTime;
-      const existingEnd = booking.endTime;
-      
-      // Check for time overlap
-      return (
-        (startTime >= existingStart && startTime < existingEnd) ||
-        (endTime > existingStart && endTime <= existingEnd) ||
-        (startTime <= existingStart && endTime >= existingEnd)
-      );
-    });
-  };
-
-  const hasUserBookedSameSlot = (spaceId, bookingDate, startTime, endTime, userEmail) => {
-    return bookings.some(booking => 
-      booking.spaceId === spaceId &&
-      booking.bookingDate === bookingDate &&
-      booking.startTime === startTime &&
-      booking.endTime === endTime &&
-      booking.userEmail === userEmail &&
-      booking.status === 'confirmed'
-    );
+    return hasBookingConflict(bookings, { spaceId, bookingDate, startTime, endTime });
   };
 
   const value = {
@@ -88,7 +63,6 @@ export const BookingProvider = ({ children }) => {
     cancelBooking,
     getUserBookings,
     isBookingConflict,
-    hasUserBookedSameSlot,
     hasUserBookedSpace,
     getUserBookingForSpace
   };
