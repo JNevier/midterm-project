@@ -6,6 +6,7 @@ import { useBooking } from '../../contexts/BookingContext';
 import { useNavigate } from 'react-router-dom';
 import { bookingSchema, validateTimes } from '../../utils/validationSchemas';
 import { getPriceSummary, formatDuration, isOvernight } from '../../utils/bookingTime';
+import { parseTimeSlot } from '../../utils/timeSlots';
 import { FaCalendar, FaClock, FaUsers, FaCheck, FaBolt, FaExclamationTriangle, FaArrowRight } from 'react-icons/fa';
 import './BookingForm.css';
 
@@ -77,108 +78,9 @@ const BookingForm = ({ spaceId, spaceName, price, timeSlots, operatingHours }) =
     return time >= operatingHoursParsed.start && time <= operatingHoursParsed.end;
   };
 
-  // Enhanced time slot parsing
-  const parseTimeSlot = (slot) => {
-
-    if (slot.includes('Full Day Pass') || slot.includes('24-hour Pass')) {
-      return { startTime: '00:00', endTime: '23:59' };
-    }
-    
-    if (slot.includes('Day Pass')) {
-      const match = slot.match(/Day Pass \((\d+):(\d+) (AM|PM) - (\d+):(\d+) (AM|PM)\)/);
-      if (match) {
-        let startHour = parseInt(match[1]);
-        const startMin = parseInt(match[2]);
-        const startPeriod = match[3];
-        let endHour = parseInt(match[4]);
-        const endMin = parseInt(match[5]);
-        const endPeriod = match[6];
-        
-        if (startPeriod === 'PM' && startHour !== 12) startHour += 12;
-        if (startPeriod === 'AM' && startHour === 12) startHour = 0;
-        if (endPeriod === 'PM' && endHour !== 12) endHour += 12;
-        if (endPeriod === 'AM' && endHour === 12) endHour = 0;
-        
-        return {
-          startTime: `${startHour.toString().padStart(2, '0')}:${startMin.toString().padStart(2, '0')}`,
-          endTime: `${endHour.toString().padStart(2, '0')}:${endMin.toString().padStart(2, '0')}`
-        };
-      }
-      return { startTime: '06:00', endTime: '18:00' };
-    }
-    
-    if (slot.includes('Night Pass') || slot.includes('Night Owl Pass')) {
-      const match = slot.match(/\((\d+):(\d+) (AM|PM) - (\d+):(\d+) (AM|PM)\)/);
-      if (match) {
-        let startHour = parseInt(match[1]);
-        const startMin = parseInt(match[2]);
-        const startPeriod = match[3];
-        let endHour = parseInt(match[4]);
-        const endMin = parseInt(match[5]);
-        const endPeriod = match[6];
-        
-        if (startPeriod === 'PM' && startHour !== 12) startHour += 12;
-        if (startPeriod === 'AM' && startHour === 12) startHour = 0;
-        if (endPeriod === 'PM' && endHour !== 12) endHour += 12;
-        if (endPeriod === 'AM' && endHour === 12) endHour = 0;
-        
-        return {
-          startTime: `${startHour.toString().padStart(2, '0')}:${startMin.toString().padStart(2, '0')}`,
-          endTime: `${endHour.toString().padStart(2, '0')}:${endMin.toString().padStart(2, '0')}`
-        };
-      }
-      return { startTime: '21:00', endTime: '06:00' };
-    }
-    
-    // Handle standard time format (12:00 PM - 6:00 PM)
-    const timeMatch = slot.match(/(\d+):(\d+) (AM|PM) - (\d+):(\d+) (AM|PM)/);
-    if (timeMatch) {
-      let startHour = parseInt(timeMatch[1]);
-      const startMin = parseInt(timeMatch[2]);
-      const startPeriod = timeMatch[3];
-      let endHour = parseInt(timeMatch[4]);
-      const endMin = parseInt(timeMatch[5]);
-      const endPeriod = timeMatch[6];
-      
-      if (startPeriod === 'PM' && startHour !== 12) startHour += 12;
-      if (startPeriod === 'AM' && startHour === 12) startHour = 0;
-      if (endPeriod === 'PM' && endHour !== 12) endHour += 12;
-      if (endPeriod === 'AM' && endHour === 12) endHour = 0;
-      
-      return {
-        startTime: `${startHour.toString().padStart(2, '0')}:${startMin.toString().padStart(2, '0')}`,
-        endTime: `${endHour.toString().padStart(2, '0')}:${endMin.toString().padStart(2, '0')}`
-      };
-    }
-    
-    // Handle common session names
-    if (slot.includes('Morning Session') || slot.includes('Morning')) {
-      if (slot.includes('Early Morning')) return { startTime: '06:00', endTime: '10:00' };
-      if (slot.includes('Creative Morning')) return { startTime: '09:00', endTime: '13:00' };
-      if (slot.includes('Executive Morning')) return { startTime: '07:00', endTime: '12:00' };
-      return { startTime: '10:00', endTime: '14:00' };
-    }
-    if (slot.includes('Afternoon Session') || slot.includes('Afternoon')) {
-      if (slot.includes('Creative Afternoon')) return { startTime: '13:00', endTime: '17:00' };
-      if (slot.includes('Executive Afternoon')) return { startTime: '12:00', endTime: '18:00' };
-      return { startTime: '14:00', endTime: '18:00' };
-    }
-    if (slot.includes('Evening') || slot.includes('Night')) {
-      if (slot.includes('Creative Evening')) return { startTime: '17:00', endTime: '21:00' };
-      if (slot.includes('Executive Evening')) return { startTime: '18:00', endTime: '22:00' };
-      return { startTime: '18:00', endTime: '22:00' };
-    }
-    if (slot.includes('Early Bird')) {
-      return { startTime: '06:00', endTime: '12:00' };
-    }
-    
-    // Default fallback
-    return { startTime: operatingHoursParsed.start, endTime: '10:00' };
-  };
-
   const handleTimeSlotSelect = (slot) => {
     setSelectedTimeSlot(slot);
-    const times = parseTimeSlot(slot);
+    const times = parseTimeSlot(slot, operatingHoursParsed.start);
     setValue('startTime', times.startTime);
     setValue('endTime', times.endTime);
     clearErrors('startTime');

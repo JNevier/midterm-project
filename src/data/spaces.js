@@ -35,7 +35,7 @@ export const spacesData = [
       "Ergonomic Chairs"
     ],
     "hours": "24/7",
-    "time_slots": ["Full Day Pass", "Night Owl Pass (9:00 PM - 6:00 AM)", "Morning Session (6:00 AM - 12:00 PM)"]
+    "time_slots": ["Full Day (24 hours)", "Night Owl Pass (9:00 PM - 6:00 AM)", "Morning Session (6:00 AM - 12:00 PM)"]
   },
   {
     "id": 3,
@@ -130,7 +130,7 @@ export const spacesData = [
       "Snack Vending"
     ],
     "hours": "24/7",
-    "time_slots": ["Day Pass (6:00 AM - 6:00 PM)", "Night Pass (6:00 PM - 6:00 AM)", "24-hour Pass"]
+    "time_slots": ["Day Pass (6:00 AM - 6:00 PM)", "Night Pass (6:00 PM - 6:00 AM)", "Full 24 hours"]
   },
   {
     "id": 8,
