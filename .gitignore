@@ -22,3 +22,11 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# AI tooling and project briefs (kept out of the repo on purpose)
+project-brief.md
+project-spec-*.md
+project-playbook.md
+CLAUDE.md
+.claude/
+Claude outputs/
