@@ -2,12 +2,14 @@ import React from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useAuth } from '../../contexts/AuthContext';
+import { useDocumentTitle } from '../../hooks/useDocumentTitle';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { loginSchema } from '../../utils/validationSchemas';
 import { FaSignInAlt, FaUser, FaEnvelope } from 'react-icons/fa';
 
 const Login = () => {
   const { login } = useAuth();
+  useDocumentTitle('Log in | StudySpot PH');
   const navigate = useNavigate();
   const location = useLocation();
 

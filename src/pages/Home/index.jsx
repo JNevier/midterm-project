@@ -5,6 +5,7 @@ import { getSpaceStats } from '../../utils/spaceStats';
 import SearchBar from '../../components/SearchBar';
 import SpaceCard from '../../components/SpaceCard';
 import { useAuth } from '../../contexts/AuthContext';
+import { useDocumentTitle } from '../../hooks/useDocumentTitle';
 import { FaSearch, FaCalendarCheck, FaMoneyBillWave, FaBolt, FaArrowRight, FaLock } from 'react-icons/fa';
 import './Home.css';
 
@@ -20,6 +21,7 @@ const stats = [
 const Home = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const { isAuthenticated } = useAuth();
+  useDocumentTitle('StudySpot PH | Book a study space in the Philippines');
 
   const filteredSpaces = useMemo(() => {
     return spacesData.filter(space =>

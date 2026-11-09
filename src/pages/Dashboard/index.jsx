@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { useDocumentTitle } from '../../hooks/useDocumentTitle';
 import { useBooking } from '../../contexts/BookingContext';
 import ConfirmationModal from '../../components/ConfirmationModal';
 import { FaCalendar, FaClock, FaUsers, FaTimes, FaExclamationTriangle, FaMapMarkerAlt } from 'react-icons/fa';
@@ -8,6 +9,7 @@ import { spacesData } from '../../data/spaces';
 
 const Dashboard = () => {
   const { user } = useAuth();
+  useDocumentTitle('My bookings | StudySpot PH');
   const { getUserBookings, cancelBooking } = useBooking();
   const [showModal, setShowModal] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState(null);
