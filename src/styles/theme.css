@@ -221,6 +221,7 @@ a:hover {
 .form-control:focus,
 .form-select:focus {
   border-color: var(--ss-primary);
+  background-color: var(--ss-surface);
 }
 
 .form-control::placeholder {

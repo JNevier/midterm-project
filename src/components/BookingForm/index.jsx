@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useAuth } from '../../contexts/AuthContext';
 import { useBooking } from '../../contexts/BookingContext';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { bookingSchema, validateTimes } from '../../utils/validationSchemas';
 import { getPriceSummary, formatDuration, isOvernight, formatBookingDate, formatTimeRange } from '../../utils/bookingTime';
 import { parseTimeSlot } from '../../utils/timeSlots';
@@ -13,6 +13,7 @@ const BookingForm = ({ spaceId, spaceName, price, timeSlots, operatingHours }) =
   const { user, isAuthenticated } = useAuth();
   const { addBooking, hasUserBookedSpace, getUserBookingForSpace, isBookingConflict } = useBooking();
   const navigate = useNavigate();
+  const location = useLocation();
   const [selectedTimeSlot, setSelectedTimeSlot] = useState(null);
   const [warning, setWarning] = useState(null);
   const fieldId = useId();
@@ -202,7 +203,8 @@ const BookingForm = ({ spaceId, spaceName, price, timeSlots, operatingHours }) =
         <div className="booking-card__body">
           <h2 id={ids.heading} className="booking-card__title">Log in to book this space</h2>
           <p className="text-muted">Log in with any name and email to book a time slot.</p>
-          <Link to="/login" className="btn btn-primary w-100">
+          {/* Pass this page along, so logging in comes back here */}
+          <Link to="/login" state={{ from: location }} className="btn btn-primary w-100">
             Log in
           </Link>
         </div>
