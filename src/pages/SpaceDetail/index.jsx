@@ -1,7 +1,8 @@
 import React from 'react';
-import { useParams, Navigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { spacesData } from '../../data/spaces';
 import BookingForm from '../../components/BookingForm';
+import NotFound from '../NotFound';
 import { FaMapMarkerAlt, FaClock, FaMoneyBillWave, FaStar } from 'react-icons/fa';
 
 const SpaceDetail = () => {
@@ -11,8 +12,7 @@ const SpaceDetail = () => {
   const space = spacesData.find(s => s.id === parseInt(spaceId));
 
   if (!space) {
-    console.log('Space not found for ID:', spaceId);
-    return <Navigate to="/" replace />;
+    return <NotFound />;
   }
 
   return (
