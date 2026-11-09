@@ -4,8 +4,16 @@ import { spacesData } from '../../data/spaces';
 import SearchBar from '../../components/SearchBar';
 import SpaceCard from '../../components/SpaceCard';
 import { useAuth } from '../../contexts/AuthContext';
-import { FaSearch, FaCalendarCheck, FaClock, FaStar, FaUsers, FaShieldAlt, FaArrowRight, FaLock } from 'react-icons/fa';
+import { FaSearch, FaCalendarCheck, FaMoneyBillWave, FaBolt, FaArrowRight, FaLock } from 'react-icons/fa';
 import './Home.css';
+
+// Real values computed from the listings, never typed in
+const stats = [
+  { label: 'Study Spaces', value: spacesData.length },
+  { label: 'Cities', value: new Set(spacesData.map(space => space.location)).size },
+  { label: 'Lowest Hourly Rate', value: `₱${Math.min(...spacesData.map(space => space.price))}` },
+  { label: 'Open 24/7', value: spacesData.filter(space => space.hours === '24/7').length },
+];
 
 const Home = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -19,13 +27,6 @@ const Home = () => {
   }, [searchTerm]);
 
   const featuredSpaces = spacesData.slice(0, 6); // Show first 6 as featured
-
-  const stats = {
-    totalSpaces: spacesData.length,
-    happyCustomers: '2,500+',
-    cities: '8+',
-    bookings: '10,000+'
-  };
 
   return (
     <div className="home-page">
@@ -46,19 +47,15 @@ const Home = () => {
                   <FaSearch className="me-2" />
                   Browse Spaces
                 </a>
-                <Link to="" className="btn btn-outline-light btn-lg">
-                  Happy Browsing
-                </Link>
-              </div>
-              <div className="d-flex align-items-center">
-                <div className="me-4">
-                  <FaStar className="text-warning me-1" />
-                  <FaStar className="text-warning me-1" />
-                  <FaStar className="text-warning me-1" />
-                  <FaStar className="text-warning me-1" />
-                  <FaStar className="text-warning me-1" />
-                  <span className="ms-2">4.9/5 from 500+ reviews</span>
-                </div>
+                {isAuthenticated ? (
+                  <Link to="/dashboard/my-bookings" className="btn btn-outline-light btn-lg">
+                    My Bookings
+                  </Link>
+                ) : (
+                  <Link to="/login" className="btn btn-outline-light btn-lg">
+                    Log in to book
+                  </Link>
+                )}
               </div>
             </div>
             <div className="col-lg-6">
@@ -77,34 +74,18 @@ const Home = () => {
         <div className="container">
           <div className="row text-center">
             <div className="col-12 mb-4">
-              <h3 className="text-muted">Trusted by thousands of students and professionals</h3>
+              <h3 className="text-muted">StudySpot PH at a glance</h3>
             </div>
           </div>
           <div className="row text-center">
-            <div className="col-md-3 mb-3">
-              <div className="stat-card">
-                <h2 className="display-6 fw-bold text-primary">{stats.totalSpaces}</h2>
-                <p className="text-muted">Premium Spaces</p>
+            {stats.map(stat => (
+              <div className="col-md-3 mb-3" key={stat.label}>
+                <div className="stat-card">
+                  <p className="display-6 fw-bold text-primary mb-2">{stat.value}</p>
+                  <p className="text-muted">{stat.label}</p>
+                </div>
               </div>
-            </div>
-            <div className="col-md-3 mb-3">
-              <div className="stat-card">
-                <h2 className="display-6 fw-bold text-primary">{stats.happyCustomers}</h2>
-                <p className="text-muted">Happy Customers</p>
-              </div>
-            </div>
-            <div className="col-md-3 mb-3">
-              <div className="stat-card">
-                <h2 className="display-6 fw-bold text-primary">{stats.cities}</h2>
-                <p className="text-muted">Cities Covered</p>
-              </div>
-            </div>
-            <div className="col-md-3 mb-3">
-              <div className="stat-card">
-                <h2 className="display-6 fw-bold text-primary">{stats.bookings}</h2>
-                <p className="text-muted">Bookings Completed</p>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
       </section>
@@ -114,8 +95,8 @@ const Home = () => {
         <div className="container">
           <div className="row">
             <div className="col-12 text-center mb-5">
-              <h2 className="display-5 fw-bold">Why Choose StudySpot PH?</h2>
-              <p className="lead text-muted">Premium study spaces with everything you need to succeed</p>
+              <h2 className="display-5 fw-bold">Why StudySpot PH?</h2>
+              <p className="lead text-muted">Everything you need to pick and book a space</p>
             </div>
           </div>
           
@@ -123,36 +104,33 @@ const Home = () => {
             <div className="col-md-4 mb-4">
               <div className="text-center">
                 <div className="feature-icon bg-primary text-white rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" style={{width: '80px', height: '80px'}}>
-                  <FaShieldAlt size={32} />
+                  <FaMoneyBillWave size={32} />
                 </div>
-                <h4>Verified & Safe</h4>
+                <h3 className="h4">See the price first</h3>
                 <p className="text-muted">
-                  All spaces are verified for safety and quality standards. 
-                  Study with peace of mind in secure, professional environments.
+                  Every space shows its hourly rate, and the booking form updates the total as you pick your time.
                 </p>
               </div>
             </div>
             <div className="col-md-4 mb-4">
               <div className="text-center">
                 <div className="feature-icon bg-success text-white rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" style={{width: '80px', height: '80px'}}>
-                  <FaUsers size={32} />
+                  <FaBolt size={32} />
                 </div>
-                <h4>Community Focused</h4>
+                <h3 className="h4">Quick time slots</h3>
                 <p className="text-muted">
-                  Connect with like-minded students and professionals. 
-                  Join a thriving community of learners and achievers.
+                  Pick a recommended slot to fill in the start and end time for you.
                 </p>
               </div>
             </div>
             <div className="col-md-4 mb-4">
               <div className="text-center">
-                <div className="feature-icon bg-warning text-white rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" style={{width: '80px', height: '80px'}}>
-                  <FaClock size={32} />
+                <div className="feature-icon bg-warning text-dark rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" style={{width: '80px', height: '80px'}}>
+                  <FaCalendarCheck size={32} />
                 </div>
-                <h4>Flexible Hours</h4>
+                <h3 className="h4">Manage your bookings</h3>
                 <p className="text-muted">
-                  Book by the hour or full day - pay only for what you use. 
-                  Flexible scheduling that fits your lifestyle.
+                  See all your bookings in one place and cancel the ones you no longer need.
                 </p>
               </div>
             </div>
@@ -166,7 +144,7 @@ const Home = () => {
           <div className="row">
             <div className="col-12 text-center mb-5">
               <h2 className="display-5 fw-bold">Featured Study Spaces</h2>
-              <p className="lead text-muted">Discover our most popular and highly-rated spaces</p>
+              <p className="lead text-muted">Browse a selection of study spaces</p>
             </div>
           </div>
           <div className="row">
@@ -238,7 +216,7 @@ const Home = () => {
             <div className="col-12 text-center">
               <h2 className="display-6 fw-bold mb-4">Ready to Find Your Perfect Study Spot?</h2>
               <p className="lead mb-4">
-                Join thousands of students and professionals who have found their productivity paradise.
+                Log in with any name and email to try the booking demo.
               </p>
               <div className="d-flex justify-content-center gap-3">
                 {isAuthenticated ? (
@@ -262,7 +240,7 @@ const Home = () => {
                 )}
               </div>
               <div className="mt-4">
-                <small>No signup fees • Instant booking • Cancel anytime • Credits to the owners for the information and photos used</small>
+                <small>Demo project: sample listings and simulated login. Photos and information credited to their owners.</small>
               </div>
             </div>
           </div>
