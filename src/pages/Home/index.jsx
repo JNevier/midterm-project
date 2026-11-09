@@ -41,8 +41,8 @@ const Home = () => {
                 Find Your Perfect Study Spot in the Philippines
               </h1>
               <p className="lead mb-4">
-                Discover premium co-working spaces, quiet study hubs, and collaborative environments 
-                across major Philippine cities. Book instantly, study productively.
+                Discover co-working spaces, quiet study hubs, and collaborative environments across
+                major Philippine cities. Pick a time slot and book it in a few clicks.
               </p>
               <div className="d-flex gap-3 mb-4">
                 <a href="#featured-spaces" className="btn btn-light btn-lg">
