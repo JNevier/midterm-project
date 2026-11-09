@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useAuth } from '../../contexts/AuthContext';
@@ -16,7 +16,7 @@ const BookingForm = ({ spaceId, spaceName, price, timeSlots, operatingHours }) =
 
   const existingBooking = isAuthenticated ? getUserBookingForSpace(spaceId, user?.email) : null;
 
-  const { register, handleSubmit, formState: { errors }, watch, setValue, setError, clearErrors, reset } = useForm({
+  const { register, handleSubmit, formState: { errors }, watch, setValue, setError, clearErrors } = useForm({
     resolver: yupResolver(bookingSchema),
     defaultValues: {
       guests: 1,
@@ -36,7 +36,6 @@ const BookingForm = ({ spaceId, spaceName, price, timeSlots, operatingHours }) =
   const watchStartTime = watch('startTime');
   const watchEndTime = watch('endTime');
   const watchGuests = watch('guests');
-  const watchBookingDate = watch('bookingDate');
 
   const parseOperatingHours = (hours) => {
     if (hours === '24/7' || hours === 'Open 24/7') {
