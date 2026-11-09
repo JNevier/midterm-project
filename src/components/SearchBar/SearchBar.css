@@ -1,0 +1,48 @@
+.search-bar {
+  position: relative;
+}
+
+.search-bar__icon {
+  position: absolute;
+  top: 50%;
+  left: 1rem;
+  color: var(--ss-muted);
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.search-bar__input {
+  min-height: 48px;
+  padding-left: 2.75rem;
+  padding-right: 3rem;
+  background-color: var(--ss-surface);
+}
+
+/* The clear button below replaces the browser's own one */
+.search-bar__input::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.search-bar__clear {
+  position: absolute;
+  top: 50%;
+  right: 0.25rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--ss-radius-sm);
+  background: transparent;
+  color: var(--ss-muted);
+  transform: translateY(-50%);
+  transition: var(--ss-transition);
+}
+
+.search-bar__clear:hover {
+  background-color: var(--ss-primary-tint);
+  color: var(--ss-primary);
+}
