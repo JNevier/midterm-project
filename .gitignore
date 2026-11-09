@@ -27,6 +27,7 @@ dist-ssr
 project-brief.md
 project-spec-*.md
 project-playbook.md
+project-status.md
 CLAUDE.md
 .claude/
 Claude outputs/
