@@ -9,7 +9,6 @@ import SpaceDetail from './pages/SpaceDetail';
 import Dashboard from './pages/Dashboard';
 import Login from './pages/Login';
 import NotFound from './pages/NotFound';
-import 'bootstrap/dist/css/bootstrap.min.css';
 
 function App() {
   return (

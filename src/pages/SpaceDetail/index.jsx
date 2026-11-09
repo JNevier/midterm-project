@@ -31,7 +31,7 @@ const SpaceDetail = () => {
                   backgroundColor: '#f8f9fa'
                 }}
                 onError={(e) => {
-                  e.target.src = `https://via.placeholder.com/800x400/007bff/ffffff?text=${encodeURIComponent(space.name)}`;
+                  e.target.src = `https://via.placeholder.com/800x400/0F766E/ffffff?text=${encodeURIComponent(space.name)}`;
                 }}
               />
             </div>

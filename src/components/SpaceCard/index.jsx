@@ -14,7 +14,7 @@ const SpaceCard = ({ space }) => {
           alt={name}
           style={{height: '200px', objectFit: 'cover'}}
           onError={(e) => {
-            e.target.src = `https://via.placeholder.com/400x200/007bff/ffffff?text=${encodeURIComponent(name)}`;
+            e.target.src = `https://via.placeholder.com/400x200/0F766E/ffffff?text=${encodeURIComponent(name)}`;
           }}
         />
         <div className="card-body d-flex flex-column">

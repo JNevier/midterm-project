@@ -120,7 +120,7 @@ const Dashboard = () => {
                           className={`img-fluid rounded ${!isUpcoming ? 'opacity-75' : ''}`}
                           style={{height: '80px', width: '100%', objectFit: 'cover'}}
                           onError={(e) => {
-                            const color = isUpcoming ? '007bff' : '6c757d';
+                            const color = isUpcoming ? '0F766E' : '475569';
                             e.target.src = `https://via.placeholder.com/200x80/${color}/ffffff?text=${encodeURIComponent(booking.spaceName)}`;
                           }}
                         />

@@ -3,6 +3,9 @@
   font-size: 1.5rem;
 }
 
-.nav-link {
-  margin-right: 1rem;
+/* The header is still dark until it is redesigned; a white ring keeps focus visible on it */
+.studyspot-header :focus-visible,
+.studyspot-header .nav-link:focus-visible,
+.studyspot-header .btn:focus-visible {
+  outline-color: #fff;
 }

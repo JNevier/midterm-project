@@ -1,0 +1,343 @@
+/*
+ * StudySpot PH theme: design tokens and base styles on top of Bootstrap 5.3.8.
+ * Loaded after the Bootstrap CSS (see src/main.jsx), so these rules win.
+ */
+
+/* ---------- Design tokens ---------- */
+:root {
+  --ss-primary: #0F766E;
+  --ss-primary-hover: #0B5F58;
+  --ss-primary-active: #084C47;
+  --ss-primary-tint: #E6F4F1;
+  --ss-ink: #0F172A;
+  --ss-muted: #475569;
+  --ss-canvas: #F6F7F9;
+  --ss-surface: #FFFFFF;
+  --ss-border: #E2E8F0;
+  --ss-input-border: #7C8DA3;
+  --ss-success: #166534;
+  --ss-success-tint: #E8F5EC;
+  --ss-danger: #B42318;
+  --ss-danger-tint: #FDECEA;
+  --ss-amber: #92400E;
+  --ss-amber-tint: #FEF3C7;
+  --ss-radius-sm: 8px;
+  --ss-radius: 12px;
+  --ss-radius-lg: 16px;
+  --ss-shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06);
+  --ss-shadow-md: 0 8px 24px rgba(15, 23, 42, 0.08);
+  --ss-backdrop: rgba(15, 23, 42, 0.55);
+  --ss-font: "Inter Variable", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --ss-section-padding: clamp(2.5rem, 6vw, 4.5rem);
+  --ss-transition: color 150ms ease, background-color 150ms ease, border-color 150ms ease, box-shadow 150ms ease;
+
+  /* Bootstrap variables mapped to the tokens */
+  --bs-primary: var(--ss-primary);
+  --bs-primary-rgb: 15, 118, 110;
+  --bs-primary-text-emphasis: var(--ss-primary-active);
+  --bs-primary-bg-subtle: var(--ss-primary-tint);
+  --bs-primary-border-subtle: #A7D7CF;
+  --bs-link-color: var(--ss-primary);
+  --bs-link-color-rgb: 15, 118, 110;
+  --bs-link-hover-color: var(--ss-primary-hover);
+  --bs-link-hover-color-rgb: 11, 95, 88;
+  --bs-body-bg: var(--ss-canvas);
+  --bs-body-bg-rgb: 246, 247, 249;
+  --bs-body-color: var(--ss-ink);
+  --bs-body-color-rgb: 15, 23, 42;
+  --bs-emphasis-color: var(--ss-ink);
+  --bs-secondary-color: var(--ss-muted);
+  --bs-border-color: var(--ss-border);
+  --bs-body-font-family: var(--ss-font);
+  --bs-body-line-height: 1.6;
+  --bs-focus-ring-color: rgba(15, 118, 110, 0.35);
+  --bs-success: var(--ss-success);
+  --bs-success-rgb: 22, 101, 52;
+  --bs-danger: var(--ss-danger);
+  --bs-danger-rgb: 180, 35, 24;
+  --bs-form-valid-color: var(--ss-success);
+  --bs-form-valid-border-color: var(--ss-success);
+  --bs-form-invalid-color: var(--ss-danger);
+  --bs-form-invalid-border-color: var(--ss-danger);
+}
+
+/* ---------- Base ---------- */
+body {
+  font-family: var(--ss-font);
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.6;
+  color: var(--ss-ink);
+  background-color: var(--ss-canvas);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, .h1 {
+  font-size: clamp(2rem, 1.2rem + 3.6vw, 3.25rem);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+
+h2, .h2 {
+  font-size: clamp(1.5rem, 1.1rem + 1.6vw, 2.125rem);
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+}
+
+h3, .h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.ss-card-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.ss-num {
+  font-variant-numeric: tabular-nums;
+}
+
+.ss-section {
+  padding-block: var(--ss-section-padding);
+}
+
+/* ---------- Links ---------- */
+a {
+  color: var(--ss-primary);
+}
+
+a:hover {
+  color: var(--ss-primary-hover);
+}
+
+/* ---------- Buttons (Bootstrap hard-codes its blue in these) ---------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  border-radius: var(--ss-radius-sm);
+  transition: var(--ss-transition);
+}
+
+.btn-primary {
+  --bs-btn-color: #fff;
+  --bs-btn-bg: var(--ss-primary);
+  --bs-btn-border-color: var(--ss-primary);
+  --bs-btn-hover-color: #fff;
+  --bs-btn-hover-bg: var(--ss-primary-hover);
+  --bs-btn-hover-border-color: var(--ss-primary-hover);
+  --bs-btn-focus-shadow-rgb: 15, 118, 110;
+  --bs-btn-active-color: #fff;
+  --bs-btn-active-bg: var(--ss-primary-active);
+  --bs-btn-active-border-color: var(--ss-primary-active);
+  --bs-btn-disabled-color: #fff;
+  --bs-btn-disabled-bg: var(--ss-primary);
+  --bs-btn-disabled-border-color: var(--ss-primary);
+}
+
+.btn-outline-primary {
+  --bs-btn-color: var(--ss-primary);
+  --bs-btn-bg: var(--ss-surface);
+  --bs-btn-border-color: var(--ss-primary);
+  --bs-btn-hover-color: var(--ss-primary-active);
+  --bs-btn-hover-bg: var(--ss-primary-tint);
+  --bs-btn-hover-border-color: var(--ss-primary);
+  --bs-btn-focus-shadow-rgb: 15, 118, 110;
+  --bs-btn-active-color: #fff;
+  --bs-btn-active-bg: var(--ss-primary);
+  --bs-btn-active-border-color: var(--ss-primary);
+  --bs-btn-disabled-color: var(--ss-primary);
+  --bs-btn-disabled-bg: transparent;
+  --bs-btn-disabled-border-color: var(--ss-primary);
+}
+
+.btn-danger {
+  --bs-btn-color: #fff;
+  --bs-btn-bg: var(--ss-danger);
+  --bs-btn-border-color: var(--ss-danger);
+  --bs-btn-hover-color: #fff;
+  --bs-btn-hover-bg: #93190F;
+  --bs-btn-hover-border-color: #93190F;
+  --bs-btn-focus-shadow-rgb: 180, 35, 24;
+  --bs-btn-active-color: #fff;
+  --bs-btn-active-bg: #7A140C;
+  --bs-btn-active-border-color: #7A140C;
+  --bs-btn-disabled-color: #fff;
+  --bs-btn-disabled-bg: var(--ss-danger);
+  --bs-btn-disabled-border-color: var(--ss-danger);
+}
+
+.btn-outline-danger {
+  --bs-btn-color: var(--ss-danger);
+  --bs-btn-bg: var(--ss-surface);
+  --bs-btn-border-color: var(--ss-danger);
+  --bs-btn-hover-color: var(--ss-danger);
+  --bs-btn-hover-bg: var(--ss-danger-tint);
+  --bs-btn-hover-border-color: var(--ss-danger);
+  --bs-btn-focus-shadow-rgb: 180, 35, 24;
+  --bs-btn-active-color: #fff;
+  --bs-btn-active-bg: var(--ss-danger);
+  --bs-btn-active-border-color: var(--ss-danger);
+}
+
+/* ---------- Form controls ---------- */
+.form-control,
+.form-select {
+  border-color: var(--ss-input-border);
+  border-radius: var(--ss-radius-sm);
+  color: var(--ss-ink);
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--ss-primary);
+}
+
+.form-control::placeholder {
+  color: var(--ss-muted);
+}
+
+.form-check-input:checked,
+.form-check-input[type=checkbox]:indeterminate {
+  background-color: var(--ss-primary);
+  border-color: var(--ss-primary);
+}
+
+.form-label {
+  font-weight: 600;
+}
+
+/* ---------- Alerts ---------- */
+.alert {
+  border-radius: var(--ss-radius);
+}
+
+.alert-success {
+  --bs-alert-color: var(--ss-success);
+  --bs-alert-bg: var(--ss-success-tint);
+  --bs-alert-border-color: #B7DFC3;
+  --bs-alert-link-color: var(--ss-success);
+}
+
+.alert-warning {
+  --bs-alert-color: var(--ss-amber);
+  --bs-alert-bg: var(--ss-amber-tint);
+  --bs-alert-border-color: #F6D78B;
+  --bs-alert-link-color: var(--ss-amber);
+}
+
+.alert-danger {
+  --bs-alert-color: var(--ss-danger);
+  --bs-alert-bg: var(--ss-danger-tint);
+  --bs-alert-border-color: #F5C2BC;
+  --bs-alert-link-color: var(--ss-danger);
+}
+
+/* ---------- Focus: one visible ring for everything ---------- */
+:focus-visible {
+  outline: 3px solid var(--ss-primary);
+  outline-offset: 2px;
+}
+
+.btn:focus-visible,
+.btn-check:focus-visible + .btn,
+.form-control:focus,
+.form-select:focus,
+.form-check-input:focus,
+.form-control.is-invalid:focus,
+.form-select.is-invalid:focus,
+.nav-link:focus-visible,
+.navbar-toggler:focus,
+.btn-close:focus {
+  outline: 3px solid var(--ss-primary);
+  outline-offset: 2px;
+  box-shadow: none;
+}
+
+/* Text inputs show the ring on every focus, buttons only on keyboard focus */
+.btn:focus:not(:focus-visible),
+.navbar-toggler:focus:not(:focus-visible),
+.btn-close:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* ---------- Shared small classes ---------- */
+.ss-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.625rem;
+  border-radius: 999px;
+  background-color: var(--ss-primary-tint);
+  color: var(--ss-primary);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.ss-chip-amber {
+  background-color: var(--ss-amber-tint);
+  color: var(--ss-amber);
+}
+
+.ss-card {
+  background-color: var(--ss-surface);
+  border: 1px solid var(--ss-border);
+  border-radius: var(--ss-radius);
+  box-shadow: var(--ss-shadow-sm);
+}
+
+.skip-link {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  z-index: 2000;
+  padding: 0.75rem 1rem;
+  border-radius: var(--ss-radius-sm);
+  background-color: var(--ss-primary);
+  color: #fff;
+  font-weight: 600;
+  text-decoration: none;
+  transform: translateY(-200%);
+}
+
+.skip-link:focus {
+  color: #fff;
+  transform: none;
+}
+
+/* ---------- Touch targets on small screens ---------- */
+@media (max-width: 767.98px) {
+  .btn,
+  .nav-link,
+  .form-control,
+  .form-select {
+    min-height: 44px;
+  }
+}
+
+/* ---------- Motion ---------- */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
