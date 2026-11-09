@@ -1,11 +1,12 @@
-import React from 'react';
+import React, { useId } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useAuth } from '../../contexts/AuthContext';
 import { useDocumentTitle } from '../../hooks/useDocumentTitle';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { loginSchema } from '../../utils/validationSchemas';
-import { FaSignInAlt, FaUser, FaEnvelope } from 'react-icons/fa';
+import Logo from '../../components/Logo';
+import './Login.css';
 
 const Login = () => {
   const { login } = useAuth();
@@ -17,7 +18,7 @@ const Login = () => {
     resolver: yupResolver(loginSchema)
   });
 
-  // Always redirect to home after login instead of dashboard
+  // Go back to the page that sent the visitor here, or Home
   const from = location.state?.from?.pathname || '/';
 
   const onSubmit = (data) => {
@@ -32,65 +33,60 @@ const Login = () => {
     navigate(from, { replace: true });
   };
 
+  const fieldId = useId();
+  const fieldA11y = (name) => (
+    errors[name]
+      ? { 'aria-invalid': true, 'aria-describedby': `${fieldId}-${name}-error` }
+      : { 'aria-invalid': false }
+  );
+
   return (
-    <div className="login-page">
-      <div className="container">
-        <div className="row justify-content-center">
-          <div className="col-md-6 col-lg-5">
-            <div className="card shadow">
-              <div className="card-body p-4">
-                <div className="text-center mb-4">
-                  <FaSignInAlt size={40} className="text-primary mb-3" />
-                  <h2 className="card-title">Login to StudySpot PH</h2>
-                  <p className="text-muted">Enter your details to continue</p>
-                </div>
-                
-                <form onSubmit={handleSubmit(onSubmit)}>
-                  <div className="mb-3">
-                    <label className="form-label">
-                      <FaUser className="me-2" /> Full Name
-                    </label>
-                    <input
-                      type="text"
-                      className={`form-control ${errors.name ? 'is-invalid' : ''}`}
-                      {...register('name')}
-                      placeholder="Enter your full name"
-                    />
-                    {errors.name && (
-                      <div className="invalid-feedback">{errors.name.message}</div>
-                    )}
-                  </div>
-                  
-                  <div className="mb-4">
-                    <label className="form-label">
-                      <FaEnvelope className="me-2" /> Email Address
-                    </label>
-                    <input
-                      type="email"
-                      className={`form-control ${errors.email ? 'is-invalid' : ''}`}
-                      {...register('email')}
-                      placeholder="Enter your email"
-                    />
-                    {errors.email && (
-                      <div className="invalid-feedback">{errors.email.message}</div>
-                    )}
-                  </div>
-                  
-                  <button type="submit" className="btn btn-primary w-100 py-2">
-                    <FaSignInAlt className="me-2" /> Login
-                  </button>
-                </form>
-                
-                <div className="text-center mt-4">
-                  <small className="text-muted">
-                    This is a simulated login for demonstration purposes.
-                    Any valid name and email format will work.
-                  </small>
-                </div>
-              </div>
-            </div>
-          </div>
+    <div className="login-page container">
+      <div className="login-card ss-card">
+        <div className="login-card__intro">
+          <Logo size={48} />
+          <h1 className="login-card__title">Log in to StudySpot PH</h1>
+          <p className="text-muted mb-0">Demo login: enter any name and a valid email.</p>
         </div>
+
+        {/* noValidate: the messages below come from the form rules, shown inline */}
+        <form onSubmit={handleSubmit(onSubmit)} noValidate>
+          <div className="mb-3">
+            <label htmlFor={`${fieldId}-name`} className="form-label">Full name</label>
+            <input
+              id={`${fieldId}-name`}
+              type="text"
+              autoComplete="name"
+              className={`form-control ${errors.name ? 'is-invalid' : ''}`}
+              {...register('name')}
+              {...fieldA11y('name')}
+            />
+            {errors.name && (
+              <div id={`${fieldId}-name-error`} className="invalid-feedback">{errors.name.message}</div>
+            )}
+          </div>
+
+          <div className="mb-4">
+            <label htmlFor={`${fieldId}-email`} className="form-label">Email address</label>
+            <input
+              id={`${fieldId}-email`}
+              type="email"
+              inputMode="email"
+              autoComplete="email"
+              placeholder="name@example.com"
+              className={`form-control ${errors.email ? 'is-invalid' : ''}`}
+              {...register('email')}
+              {...fieldA11y('email')}
+            />
+            {errors.email && (
+              <div id={`${fieldId}-email-error`} className="invalid-feedback">{errors.email.message}</div>
+            )}
+          </div>
+
+          <button type="submit" className="btn btn-primary btn-lg w-100">
+            Log in
+          </button>
+        </form>
       </div>
     </div>
   );
