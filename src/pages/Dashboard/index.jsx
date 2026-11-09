@@ -1,12 +1,14 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useRef, useState } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { FaMapMarkerAlt, FaTimes } from 'react-icons/fa';
 import { useAuth } from '../../contexts/AuthContext';
 import { useDocumentTitle } from '../../hooks/useDocumentTitle';
 import { useBooking } from '../../contexts/BookingContext';
 import ConfirmationModal from '../../components/ConfirmationModal';
 import SpaceImage from '../../components/SpaceImage';
-import { FaCalendar, FaClock, FaUsers, FaTimes, FaExclamationTriangle, FaMapMarkerAlt } from 'react-icons/fa';
 import { spacesData } from '../../data/spaces';
+import { formatBookingDate, formatTimeRange } from '../../utils/bookingTime';
+import './Dashboard.css';
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -14,6 +16,19 @@ const Dashboard = () => {
   const { getUserBookings, cancelBooking } = useBooking();
   const [showModal, setShowModal] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState(null);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const headingRef = useRef(null);
+  const justCancelledRef = useRef(false);
+
+  // A new booking arrives in router state from the booking form. Keep it for
+  // this visit, then clear the state so a refresh does not show it again.
+  const [confirmation, setConfirmation] = useState(() => location.state?.bookingConfirmed ?? null);
+  useEffect(() => {
+    if (location.state?.bookingConfirmed) {
+      navigate(location.pathname, { replace: true, state: null });
+    }
+  }, [location.state, location.pathname, navigate]);
 
   // Use email instead of ID for persistent bookings
   const userBookings = getUserBookings(user?.email);
@@ -36,6 +51,7 @@ const Dashboard = () => {
   const handleConfirmCancel = () => {
     if (selectedBooking) {
       cancelBooking(selectedBooking.id);
+      justCancelledRef.current = true;
       setShowModal(false);
       setSelectedBooking(null);
     }
@@ -44,6 +60,11 @@ const Dashboard = () => {
   const handleCloseModal = () => {
     setShowModal(false);
     setSelectedBooking(null);
+    // The button that opened the dialog is gone after a cancel; move focus to the heading
+    if (justCancelledRef.current) {
+      justCancelledRef.current = false;
+      headingRef.current?.focus();
+    }
   };
 
   const sortedBookings = enrichedBookings.sort((a, b) => {
@@ -52,50 +73,59 @@ const Dashboard = () => {
     return dateB - dateA; // Most recent first
   });
 
-  return (
-    <div className="dashboard-page">
-      <div className="container">
-        <div className="welcome-section text-center mb-4 py-4 bg-light rounded">
-          <h1 className="display-6">Welcome back, {user?.name}!</h1>
-          <p className="lead text-muted">Manage your study space bookings</p>
-        </div>
+  const count = sortedBookings.length;
+  const welcomeLine = count === 0
+    ? `Welcome back, ${user?.name}. You have no bookings yet.`
+    : `Welcome back, ${user?.name}. You have ${count} ${count === 1 ? 'booking' : 'bookings'}.`;
 
-        {sortedBookings.length === 0 ? (
-          <div className="no-bookings text-center py-5">
-            <FaExclamationTriangle size={64} className="text-muted mb-3" />
-            <h3>No bookings yet</h3>
-            <p className="text-muted">Start exploring study spaces and make your first booking!</p>
-            <Link to="/" className="btn btn-primary btn-lg">Explore Spaces</Link>
-          </div>
-        ) : (
-          <div className="bookings-section">
-            <div className="d-flex justify-content-between align-items-center mb-4">
-              <h4 className="text-primary">
-                <FaCalendar className="me-2" />
-                Your Bookings ({sortedBookings.length})
-              </h4>
-            </div>
-            
+  return (
+    <div className="dashboard container">
+      <div className="dashboard__header">
+        <h1 ref={headingRef} tabIndex={-1} className="dashboard__title">My bookings</h1>
+        <p className="dashboard__welcome">{welcomeLine}</p>
+      </div>
+
+      {confirmation && (
+        <div className="alert alert-success dashboard__alert" role="status">
+          <p className="mb-0">
+            Booking confirmed: {confirmation.spaceName} on {formatBookingDate(confirmation.bookingDate)},{' '}
+            {formatTimeRange(confirmation.startTime, confirmation.endTime)}.
+          </p>
+          <button type="button" className="dashboard__dismiss" aria-label="Dismiss" onClick={() => setConfirmation(null)}>
+            <FaTimes aria-hidden="true" />
+          </button>
+        </div>
+      )}
+
+      {count === 0 ? (
+        <div className="dashboard__empty ss-card">
+          <h2>No bookings yet</h2>
+          <p className="text-muted">Pick a study space and book your first time slot.</p>
+          <Link to="/#spaces" className="btn btn-primary btn-lg">Browse spaces</Link>
+        </div>
+      ) : (
+        <>
+          <ul className="dashboard__list">
             {sortedBookings.map(booking => {
               const now = new Date();
               const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-              
+
               const bookingDate = new Date(booking.bookingDate + 'T00:00:00'); // Add time to avoid timezone issues
               const bookingDateTime = new Date(booking.bookingDate + 'T' + booking.startTime + ':00');
-              
+
               const isUpcoming = bookingDateTime > now;
-              
+
               const getBookingTimeDisplay = () => {
                 // Compare dates only (ignore time for day calculation)
                 const diffTime = bookingDate.getTime() - today.getTime();
                 const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-                
+
                 if (diffDays === 0) {
                   // It's today - check if time has passed
                   const currentTime = now.getHours() * 60 + now.getMinutes();
                   const [bookingHour, bookingMin] = booking.startTime.split(':').map(Number);
                   const bookingTimeInMinutes = bookingHour * 60 + bookingMin;
-                  
+
                   if (bookingTimeInMinutes > currentTime) {
                     return 'Today';
                   } else {
@@ -111,92 +141,81 @@ const Dashboard = () => {
                   return `${pastDays} days ago`;
                 }
               };
-              
+
+              const titleId = `booking-${booking.id}-title`;
+
               return (
-                <div key={booking.id} className={`booking-card card mb-4 shadow-sm ${isUpcoming ? 'border-primary' : 'bg-light'}`}>
-                  <div className="card-body">
-                    <div className="row align-items-center">
-                      <div className="col-md-2">
-                        <SpaceImage src={booking.spaceImage} name={booking.spaceName} ratio="16 / 10" className="rounded" />
-                      </div>
-                      <div className="col-md-6">
-                        <h5 className={`card-title mb-1 ${isUpcoming ? 'text-primary' : 'text-muted'}`}>
-                          {booking.spaceName}
-                        </h5>
-                        <p className="text-muted mb-2">
-                          <FaMapMarkerAlt className="me-1" />{booking.spaceLocation}
+                <li key={booking.id}>
+                  <article className={`booking-item ss-card${isUpcoming ? '' : ' booking-item--past'}`} aria-labelledby={titleId}>
+                    <div className="booking-item__media">
+                      <SpaceImage src={booking.spaceImage} name={booking.spaceName} ratio="16 / 10" />
+                    </div>
+                    <div className="booking-item__body">
+                      <div className="booking-item__top">
+                        <div>
+                          <h2 id={titleId} className="ss-card-title booking-item__title">{booking.spaceName}</h2>
+                          <p className="booking-item__location">
+                            <FaMapMarkerAlt aria-hidden="true" />
+                            {booking.spaceLocation}
+                          </p>
+                        </div>
+                        <p className="booking-item__status">
+                          <span className={`ss-chip${isUpcoming ? '' : ' ss-chip-neutral'}`}>
+                            {isUpcoming ? 'Upcoming' : 'Completed'}
+                          </span>
+                          <span className="booking-item__relative">{getBookingTimeDisplay()}</span>
                         </p>
-                        <div className="booking-details">
-                          <p className="mb-1">
-                            <FaCalendar className="me-2 text-muted" />
-                            <strong>{new Date(booking.bookingDate).toLocaleDateString()}</strong>
-                          </p>
-                          <p className="mb-1">
-                            <FaClock className="me-2 text-muted" />
-                            {booking.startTime} - {booking.endTime}
-                          </p>
-                          <p className="mb-0">
-                            <FaUsers className="me-2 text-muted" />
-                            {booking.guests} guest{booking.guests > 1 ? 's' : ''}
-                            {booking.totalPrice && (
-                              <span className="ms-3">
-                                <strong>₱{booking.totalPrice}</strong>
-                              </span>
-                            )}
-                          </p>
-                        </div>
                       </div>
-                      <div className="col-md-2 text-center">
-                        <div className="mt-2">
-                          <small className={`${isUpcoming ? 'text-success' : 'text-muted'}`}>
-                            {getBookingTimeDisplay()}
-                          </small>
+
+                      <dl className="booking-item__details">
+                        <div>
+                          <dt>Date</dt>
+                          <dd>{formatBookingDate(booking.bookingDate)}</dd>
                         </div>
-                      </div>
-                      <div className="col-md-2 text-end">
-                        {isUpcoming && (
-                          <button 
-                            className="btn btn-outline-danger btn-sm"
+                        <div>
+                          <dt>Time</dt>
+                          <dd>{formatTimeRange(booking.startTime, booking.endTime)}</dd>
+                        </div>
+                        <div>
+                          <dt>Guests</dt>
+                          <dd className="ss-num">{booking.guests}</dd>
+                        </div>
+                        <div>
+                          <dt>Total</dt>
+                          <dd className="ss-num">{booking.totalPrice ? `₱${booking.totalPrice}` : '—'}</dd>
+                        </div>
+                      </dl>
+
+                      {isUpcoming && (
+                        <div className="booking-item__actions">
+                          <button
+                            type="button"
+                            className="btn btn-outline-danger"
                             onClick={() => handleCancelClick(booking)}
                           >
-                            <FaTimes className="me-1" /> Cancel
+                            Cancel booking
                           </button>
-                        )}
-                        {!isUpcoming && (
-                          <span className="badge bg-secondary">Completed</span>
-                        )}
-                      </div>
+                        </div>
+                      )}
                     </div>
-                  </div>
-                </div>
+                  </article>
+                </li>
               );
             })}
-          </div>
-        )}
+          </ul>
 
-        {/* Quick Actions */}
-        <div className="quick-actions mt-5 pt-4 border-top">
-          <div className="row text-center">
-            <div className="col-md-6 mb-3">
-              <Link to="/" className="btn btn-outline-primary btn-lg w-100">
-                Explore More Spaces
-              </Link>
-            </div>
-            <div className="col-md-6 mb-3">
-              <Link to="/" className="btn btn-outline-secondary btn-lg w-100">
-                Back to Home
-              </Link>
-            </div>
-          </div>
-        </div>
+          <Link to="/#spaces" className="btn btn-outline-primary dashboard__more">
+            Browse more spaces
+          </Link>
+        </>
+      )}
 
-        <ConfirmationModal
-          show={showModal}
-          onClose={handleCloseModal}
-          onConfirm={handleConfirmCancel}
-          booking={selectedBooking}
-        />
-      </div>
+      <ConfirmationModal
+        show={showModal}
+        onClose={handleCloseModal}
+        onConfirm={handleConfirmCancel}
+        booking={selectedBooking}
+      />
     </div>
   );
 };

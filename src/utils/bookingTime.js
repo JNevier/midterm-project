@@ -68,3 +68,28 @@ export const hasBookingConflict = (bookings, newBooking) => {
       rangesOverlap(getBookingRange(booking), newRange)
   );
 };
+
+// "2026-11-10" -> "Tue, Nov 10, 2026". The date is built from its parts as a
+// local date. new Date('2026-11-10') would be read as midnight UTC, which is
+// still the previous day for a visitor in the Americas.
+export const formatBookingDate = (bookingDate) => {
+  const [year, month, day] = bookingDate.split('-').map(Number);
+  return new Date(year, month - 1, day).toLocaleDateString('en-US', {
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  });
+};
+
+// "13:00" -> "1:00 PM", "00:30" -> "12:30 AM"
+export const formatTime12h = (time) => {
+  const [hours, minutes] = time.split(':').map(Number);
+  const period = hours < 12 ? 'AM' : 'PM';
+  const hour12 = hours % 12 === 0 ? 12 : hours % 12;
+  return `${hour12}:${String(minutes).padStart(2, '0')} ${period}`;
+};
+
+// "9:00 AM to 1:00 PM", with " (next day)" for an overnight booking
+export const formatTimeRange = (startTime, endTime) =>
+  `${formatTime12h(startTime)} to ${formatTime12h(endTime)}${isOvernight(startTime, endTime) ? ' (next day)' : ''}`;

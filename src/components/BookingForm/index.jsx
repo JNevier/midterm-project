@@ -5,7 +5,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useBooking } from '../../contexts/BookingContext';
 import { Link, useNavigate } from 'react-router-dom';
 import { bookingSchema, validateTimes } from '../../utils/validationSchemas';
-import { getPriceSummary, formatDuration, isOvernight } from '../../utils/bookingTime';
+import { getPriceSummary, formatDuration, isOvernight, formatBookingDate, formatTimeRange } from '../../utils/bookingTime';
 import { parseTimeSlot } from '../../utils/timeSlots';
 import './BookingForm.css';
 
@@ -218,11 +218,11 @@ const BookingForm = ({ spaceId, spaceName, price, timeSlots, operatingHours }) =
           <dl className="booking-summary">
             <div>
               <dt>Date</dt>
-              <dd>{new Date(existingBooking.bookingDate).toLocaleDateString()}</dd>
+              <dd>{formatBookingDate(existingBooking.bookingDate)}</dd>
             </div>
             <div>
               <dt>Time</dt>
-              <dd>{existingBooking.startTime} to {existingBooking.endTime}</dd>
+              <dd>{formatTimeRange(existingBooking.startTime, existingBooking.endTime)}</dd>
             </div>
             <div>
               <dt>Guests</dt>
