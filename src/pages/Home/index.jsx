@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { spacesData } from '../../data/spaces';
+import { getSpaceStats } from '../../utils/spaceStats';
 import SearchBar from '../../components/SearchBar';
 import SpaceCard from '../../components/SpaceCard';
 import { useAuth } from '../../contexts/AuthContext';
@@ -8,11 +9,12 @@ import { FaSearch, FaCalendarCheck, FaMoneyBillWave, FaBolt, FaArrowRight, FaLoc
 import './Home.css';
 
 // Real values computed from the listings, never typed in
+const spaceStats = getSpaceStats(spacesData);
 const stats = [
-  { label: 'Study Spaces', value: spacesData.length },
-  { label: 'Cities', value: new Set(spacesData.map(space => space.location)).size },
-  { label: 'Lowest Hourly Rate', value: `₱${Math.min(...spacesData.map(space => space.price))}` },
-  { label: 'Open 24/7', value: spacesData.filter(space => space.hours === '24/7').length },
+  { label: 'Study Spaces', value: spaceStats.spaceCount },
+  { label: 'Cities', value: spaceStats.cityCount },
+  { label: 'Lowest Hourly Rate', value: spaceStats.lowestRate === null ? '—' : `₱${spaceStats.lowestRate}` },
+  { label: 'Open 24/7', value: spaceStats.open24HoursCount },
 ];
 
 const Home = () => {
