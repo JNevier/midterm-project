@@ -1,13 +1,12 @@
-import React, { useState } from 'react';
+import React, { useId, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useAuth } from '../../contexts/AuthContext';
 import { useBooking } from '../../contexts/BookingContext';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { bookingSchema, validateTimes } from '../../utils/validationSchemas';
 import { getPriceSummary, formatDuration, isOvernight } from '../../utils/bookingTime';
 import { parseTimeSlot } from '../../utils/timeSlots';
-import { FaCalendar, FaClock, FaUsers, FaCheck, FaBolt, FaExclamationTriangle, FaArrowRight } from 'react-icons/fa';
 import './BookingForm.css';
 
 const BookingForm = ({ spaceId, spaceName, price, timeSlots, operatingHours }) => {
@@ -15,6 +14,17 @@ const BookingForm = ({ spaceId, spaceName, price, timeSlots, operatingHours }) =
   const { addBooking, hasUserBookedSpace, getUserBookingForSpace, isBookingConflict } = useBooking();
   const navigate = useNavigate();
   const [selectedTimeSlot, setSelectedTimeSlot] = useState(null);
+  const [warning, setWarning] = useState(null);
+  const fieldId = useId();
+  const ids = {
+    heading: `${fieldId}-heading`,
+    slots: `${fieldId}-slots`,
+    slotsHelp: `${fieldId}-slots-help`,
+    date: `${fieldId}-date`,
+    start: `${fieldId}-start`,
+    end: `${fieldId}-end`,
+    guests: `${fieldId}-guests`,
+  };
 
   const existingBooking = isAuthenticated ? getUserBookingForSpace(spaceId, user?.email) : null;
 
@@ -98,7 +108,7 @@ const BookingForm = ({ spaceId, spaceName, price, timeSlots, operatingHours }) =
     }
 
     if (hasUserBookedSpace(spaceId, user.email)) {
-      alert('You already have a booking for this space. Please cancel your existing booking from your dashboard to make a new one.');
+      setWarning('You already have a booking for this space. Cancel it from your bookings page to make a new one.');
       return;
     }
 
@@ -160,198 +170,202 @@ const BookingForm = ({ spaceId, spaceName, price, timeSlots, operatingHours }) =
     };
 
     addBooking(booking);
-    alert('Booking confirmed! Check your dashboard.');
-    navigate('/dashboard/my-bookings');
+    // The bookings page shows the confirmation from this router state
+    navigate('/dashboard/my-bookings', {
+      state: {
+        bookingConfirmed: {
+          spaceName,
+          bookingDate: data.bookingDate,
+          startTime: data.startTime,
+          endTime: data.endTime,
+        },
+      },
+    });
   };
+
+  // Props that link an input to its error message
+  const fieldA11y = (name) => (
+    errors[name]
+      ? { 'aria-invalid': true, 'aria-describedby': `${fieldId}-${name}-error` }
+      : { 'aria-invalid': false }
+  );
+
+  const fieldError = (name) => errors[name] && (
+    <div id={`${fieldId}-${name}-error`} className="invalid-feedback">
+      {errors[name].message}
+    </div>
+  );
 
   if (!isAuthenticated) {
     return (
-      <div className="booking-form-container">
-        <div className="alert alert-info">
-          <h6>Please log in to make a booking</h6>
-          <button 
-            className="btn btn-primary btn-sm"
-            onClick={() => navigate('/login')}
-          >
-            Go to Login
-          </button>
+      <section className="booking-card ss-card" aria-labelledby={ids.heading}>
+        <div className="booking-card__body">
+          <h2 id={ids.heading} className="booking-card__title">Log in to book this space</h2>
+          <p className="text-muted">Log in with any name and email to book a time slot.</p>
+          <Link to="/login" className="btn btn-primary w-100">
+            Log in
+          </Link>
         </div>
-      </div>
+      </section>
     );
   }
 
   if (existingBooking) {
     return (
-      <div className="booking-form-container">
-        <div className="card border-warning">
-          <div className="card-header bg-warning text-dark">
-            <h5 className="mb-0"><FaExclamationTriangle className="me-2" />Existing Booking Found</h5>
-          </div>
-          <div className="card-body">
-            <p className="card-text">You already have a booking for this space:</p>
-            <div className="existing-booking-details bg-light p-3 rounded mb-3">
-              <p className="mb-1"><strong>Date:</strong> {new Date(existingBooking.bookingDate).toLocaleDateString()}</p>
-              <p className="mb-1"><strong>Time:</strong> {existingBooking.startTime} - {existingBooking.endTime}</p>
-              <p className="mb-1"><strong>Guests:</strong> {existingBooking.guests}</p>
-              <p className="mb-0"><strong>Total:</strong> ₱{existingBooking.totalPrice}</p>
+      <section className="booking-card ss-card" aria-labelledby={ids.heading}>
+        <div className="booking-card__body">
+          <h2 id={ids.heading} className="booking-card__title">You already have a booking here</h2>
+          <dl className="booking-summary">
+            <div>
+              <dt>Date</dt>
+              <dd>{new Date(existingBooking.bookingDate).toLocaleDateString()}</dd>
             </div>
-            <p className="text-muted small">You can only have one booking per space. Manage your bookings from your dashboard.</p>
-            
-            <div className="d-grid gap-2">
-              <button 
-                className="btn btn-primary"
-                onClick={() => navigate('/dashboard/my-bookings')}
-              >
-                <FaArrowRight className="me-2" /> Go to Dashboard
-              </button>
+            <div>
+              <dt>Time</dt>
+              <dd>{existingBooking.startTime} to {existingBooking.endTime}</dd>
             </div>
-          </div>
+            <div>
+              <dt>Guests</dt>
+              <dd>{existingBooking.guests}</dd>
+            </div>
+            <div className="booking-summary__total">
+              <dt>Total</dt>
+              <dd className="ss-num">₱{existingBooking.totalPrice}</dd>
+            </div>
+          </dl>
+          <p className="booking-card__note">
+            You can only have one booking per space. You can cancel it from your bookings page.
+          </p>
+          <Link to="/dashboard/my-bookings" className="btn btn-primary w-100">
+            Go to my bookings
+          </Link>
         </div>
-      </div>
+      </section>
     );
   }
 
   return (
-    <div className="booking-form-container">
-      <div className="card">
-        <div className="card-header bg-primary text-white">
-          <h5 className="mb-0"><FaCalendar className="me-2" />Book This Space</h5>
-        </div>
-        <div className="card-body">
-          {/* Operating Hours Notice */}
-          <div className="alert alert-info mb-3">
-            <FaClock className="me-2" />
-            <strong>Operating Hours:</strong> {operatingHours}
+    <section className="booking-card ss-card" aria-labelledby={ids.heading}>
+      <div className="booking-card__body">
+        <h2 id={ids.heading} className="booking-card__title">Book this space</h2>
+
+        {warning && (
+          <div className="alert alert-warning" role="alert">
+            {warning}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit(onSubmit)}>
+          {timeSlots && timeSlots.length > 0 && (
+            <div className="booking-field" role="group" aria-labelledby={ids.slots} aria-describedby={ids.slotsHelp}>
+              <p id={ids.slots} className="form-label mb-1">Quick time slots</p>
+              <p id={ids.slotsHelp} className="booking-help">Choose a slot to fill in the start and end time.</p>
+              <div className="booking-slots">
+                {timeSlots.map((slot) => (
+                  <button
+                    key={slot}
+                    type="button"
+                    className="btn btn-sm btn-outline-primary booking-slot"
+                    aria-pressed={selectedTimeSlot === slot}
+                    onClick={() => handleTimeSlotSelect(slot)}
+                  >
+                    {slot}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div className="booking-field">
+            <label htmlFor={ids.date} className="form-label">Booking date</label>
+            <input
+              id={ids.date}
+              type="date"
+              className={`form-control ${errors.bookingDate ? 'is-invalid' : ''}`}
+              {...register('bookingDate')}
+              min={getTodayDateString()}
+              {...fieldA11y('bookingDate')}
+            />
+            {fieldError('bookingDate')}
           </div>
 
-          <form onSubmit={handleSubmit(onSubmit)}>
-            {/* Quick Time Slots */}
-            {timeSlots && timeSlots.length > 0 && (
-              <div className="mb-4">
-                <label className="form-label fw-bold">
-                  <FaBolt className="me-2 text-warning" /> Quick Select Time Slots
-                </label>
-                <div className="d-flex flex-wrap gap-2">
-                  {timeSlots.map((slot, index) => (
-                    <button
-                      key={index}
-                      type="button"
-                      className={`btn btn-sm ${
-                        selectedTimeSlot === slot ? 'btn-success' : 'btn-outline-primary'
-                      }`}
-                      onClick={() => handleTimeSlotSelect(slot)}
-                    >
-                      {slot}
-                    </button>
-                  ))}
-                </div>
-                <small className="text-muted">Click a time slot to auto-fill the time fields</small>
-              </div>
-            )}
+          <div className="row g-3 booking-field">
+            <div className="col-sm-6">
+              <label htmlFor={ids.start} className="form-label">Start time</label>
+              <input
+                id={ids.start}
+                type="time"
+                className={`form-control ${errors.startTime ? 'is-invalid' : ''}`}
+                {...register('startTime')}
+                min={operatingHours === '24/7' ? '00:00' : operatingHoursParsed.start}
+                max={operatingHours === '24/7' ? '23:59' : operatingHoursParsed.end}
+                onChange={(e) => {
+                  setSelectedTimeSlot(null);
+                  register('startTime').onChange(e);
+                }}
+                {...fieldA11y('startTime')}
+              />
+              {fieldError('startTime')}
+            </div>
+            <div className="col-sm-6">
+              <label htmlFor={ids.end} className="form-label">End time</label>
+              <input
+                id={ids.end}
+                type="time"
+                className={`form-control ${errors.endTime ? 'is-invalid' : ''}`}
+                {...register('endTime')}
+                min={operatingHours === '24/7' ? '00:00' : operatingHoursParsed.start}
+                max={operatingHours === '24/7' ? '23:59' : operatingHoursParsed.end}
+                onChange={(e) => {
+                  setSelectedTimeSlot(null);
+                  register('endTime').onChange(e);
+                }}
+                {...fieldA11y('endTime')}
+              />
+              {fieldError('endTime')}
+            </div>
+          </div>
 
-            <div className="mb-3">
-              <label className="form-label">
-                <FaCalendar className="me-2" /> Booking Date
-              </label>
-              <input
-                type="date"
-                className={`form-control booking-input ${errors.bookingDate ? 'is-invalid' : ''}`}
-                {...register('bookingDate')}
-                min={getTodayDateString()}
-              />
-              {errors.bookingDate && (
-                <div className="invalid-feedback">{errors.bookingDate.message}</div>
-              )}
+          <div className="booking-field">
+            <label htmlFor={ids.guests} className="form-label">Number of guests</label>
+            <input
+              id={ids.guests}
+              type="number"
+              inputMode="numeric"
+              className={`form-control ${errors.guests ? 'is-invalid' : ''}`}
+              {...register('guests')}
+              min="1"
+              max="10"
+              {...fieldA11y('guests')}
+            />
+            {fieldError('guests')}
+          </div>
+
+          <dl className="booking-summary booking-summary--price">
+            <div>
+              <dt>Hourly rate</dt>
+              <dd className="ss-num">₱{price}</dd>
             </div>
-            
-            <div className="row mb-3">
-              <div className="col-md-6">
-                <label className="form-label">
-                  <FaClock className="me-2" /> Start Time
-                </label>
-                <input
-                  type="time"
-                  className={`form-control booking-input ${errors.startTime ? 'is-invalid' : ''}`}
-                  {...register('startTime')}
-                  min={operatingHours === '24/7' ? '00:00' : operatingHoursParsed.start}
-                  max={operatingHours === '24/7' ? '23:59' : operatingHoursParsed.end}
-                  onChange={(e) => {
-                    setSelectedTimeSlot(null);
-                    register('startTime').onChange(e);
-                  }}
-                />
-                {errors.startTime && (
-                  <div className="invalid-feedback">{errors.startTime.message}</div>
-                )}
-              </div>
-              <div className="col-md-6">
-                <label className="form-label">
-                  <FaClock className="me-2" /> End Time
-                </label>
-                <input
-                  type="time"
-                  className={`form-control booking-input ${errors.endTime ? 'is-invalid' : ''}`}
-                  {...register('endTime')}
-                  min={operatingHours === '24/7' ? '00:00' : operatingHoursParsed.start}
-                  max={operatingHours === '24/7' ? '23:59' : operatingHoursParsed.end}
-                  onChange={(e) => {
-                    setSelectedTimeSlot(null);
-                    register('endTime').onChange(e);
-                  }}
-                />
-                {errors.endTime && (
-                  <div className="invalid-feedback">{errors.endTime.message}</div>
-                )}
-              </div>
+            <div>
+              <dt>Guests</dt>
+              <dd className="ss-num">{watchGuests || 1}</dd>
             </div>
-            
-            <div className="mb-3">
-              <label className="form-label">
-                <FaUsers className="me-2" /> Number of Guests
-              </label>
-              <input
-                type="number"
-                className={`form-control ${errors.guests ? 'is-invalid' : ''}`}
-                {...register('guests')}
-                min="1"
-                max="10"
-              />
-              {errors.guests && (
-                <div className="invalid-feedback">{errors.guests.message}</div>
-              )}
+            <div>
+              <dt>Duration</dt>
+              <dd>{formatDuration(priceSummary.durationMinutes)} (billed as {billedLabel})</dd>
             </div>
-            
-            {/* Price Summary */}
-            <div className="price-summary mb-3 p-3 bg-light rounded">
-              <h6 className="fw-bold">Price Summary</h6>
-              <div className="d-flex justify-content-between mb-1">
-                <span>Hourly Rate:</span>
-                <span>₱{price}</span>
-              </div>
-              <div className="d-flex justify-content-between mb-1">
-                <span>Guests:</span>
-                <span>{watchGuests || 1}</span>
-              </div>
-              <div className="d-flex justify-content-between mb-1">
-                <span>Duration:</span>
-                <span>
-                  {formatDuration(priceSummary.durationMinutes)} (billed as {billedLabel})
-                </span>
-              </div>
-              <hr />
-              <div className="d-flex justify-content-between fw-bold">
-                <span>Total:</span>
-                <span className="text-success">₱{priceSummary.total}</span>
-              </div>
+            <div className="booking-summary__total">
+              <dt>Total</dt>
+              <dd className="ss-num">₱{priceSummary.total}</dd>
             </div>
-            
-            <button type="submit" className="btn btn-success w-100 py-2">
-              <FaCheck className="me-2" /> Confirm Booking
-            </button>
-          </form>
-        </div>
+          </dl>
+
+          <button type="submit" className="btn btn-primary btn-lg w-100">
+            Confirm booking
+          </button>
+        </form>
       </div>
-    </div>
+    </section>
   );
 };
 
