@@ -1,4 +1,5 @@
 import * as yup from 'yup';
+import { getDurationMinutes, isOvernight } from './bookingTime';
 
 export const loginSchema = yup.object({
   name: yup.string().required('Name is required').min(2, 'Name must be at least 2 characters'),
@@ -67,7 +68,7 @@ export const bookingSchema = yup.object({
   endTime: yup
     .string()
     .required('End time is required')
-    .test('after-start-time', 'End time must be after start time', function(value) {
+    .test('different-from-start', 'End time must be different from start time', function(value) {
       const { startTime } = this.parent;
       
       if (!value || !startTime) return true;
@@ -75,9 +76,12 @@ export const bookingSchema = yup.object({
       return validateTimes(startTime, value);
     })
     .test('not-past-time', 'End time cannot be in the past', function(value) {
-      const { bookingDate } = this.parent;
+      const { bookingDate, startTime } = this.parent;
       
       if (!value || !bookingDate) return true;
+
+      // An overnight booking ends tomorrow, so its end time is never in the past
+      if (startTime && isOvernight(startTime, value)) return true;
       
       if (isToday(bookingDate)) {
         return !isTimeInPastForToday(bookingDate, value);
@@ -97,21 +101,11 @@ export const bookingSchema = yup.object({
     })
 });
 
-// Enhanced time validation function
+// Start and end must differ. An end earlier than the start is an overnight
+// booking (allowed only for 24/7 spaces, checked in the booking form).
 export const validateTimes = (startTime, endTime) => {
   if (startTime && endTime) {
-    const [startHour, startMin] = startTime.split(':').map(Number);
-    const [endHour, endMin] = endTime.split(':').map(Number);
-    
-    const startTotalMinutes = startHour * 60 + startMin;
-    const endTotalMinutes = endHour * 60 + endMin;
-    
-    // Handle overnight bookings (end time next day)
-    if (endTotalMinutes <= startTotalMinutes) {
-      return endTotalMinutes + (24 * 60) > startTotalMinutes;
-    }
-    
-    return endTotalMinutes > startTotalMinutes;
+    return getDurationMinutes(startTime, endTime) > 0;
   }
   return true;
 };

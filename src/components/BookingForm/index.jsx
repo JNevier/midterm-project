@@ -5,12 +5,13 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useBooking } from '../../contexts/BookingContext';
 import { useNavigate } from 'react-router-dom';
 import { bookingSchema, validateTimes } from '../../utils/validationSchemas';
+import { getPriceSummary, formatDuration, isOvernight } from '../../utils/bookingTime';
 import { FaCalendar, FaClock, FaUsers, FaCheck, FaBolt, FaExclamationTriangle, FaArrowRight } from 'react-icons/fa';
 import './BookingForm.css';
 
 const BookingForm = ({ spaceId, spaceName, price, timeSlots, operatingHours }) => {
   const { user, isAuthenticated } = useAuth();
-  const { addBooking, hasUserBookedSpace, getUserBookingForSpace } = useBooking();
+  const { addBooking, hasUserBookedSpace, getUserBookingForSpace, isBookingConflict } = useBooking();
   const navigate = useNavigate();
   const [selectedTimeSlot, setSelectedTimeSlot] = useState(null);
 
@@ -66,6 +67,7 @@ const BookingForm = ({ spaceId, spaceName, price, timeSlots, operatingHours }) =
   };
 
   const operatingHoursParsed = parseOperatingHours(operatingHours || '9:00 AM - 9:00 PM');
+  const isOpen24Hours = operatingHours === '24/7' || operatingHours === 'Open 24/7';
 
   // Validate time against operating hours
   const isTimeWithinOperatingHours = (time) => {
@@ -183,18 +185,9 @@ const BookingForm = ({ spaceId, spaceName, price, timeSlots, operatingHours }) =
     clearErrors('endTime');
   };
 
-  const calculateTotal = () => {
-    if (watchStartTime && watchEndTime) {
-      const start = parseInt(watchStartTime.split(':')[0]);
-      const end = parseInt(watchEndTime.split(':')[0]);
-      let hours = end - start;
-      
-      if (hours < 0) hours += 24; // Handle overnight bookings
-      hours = Math.max(hours, 1);
-      return hours * price * (watchGuests || 1);
-    }
-    return price;
-  };
+  // One shared calculation for the Duration row and the Total
+  const priceSummary = getPriceSummary(watchStartTime, watchEndTime, price, watchGuests);
+  const billedLabel = `${priceSummary.billedHours} ${priceSummary.billedHours === 1 ? 'hour' : 'hours'}`;
 
   const onSubmit = (data) => {
     if (!isAuthenticated) {
@@ -210,12 +203,20 @@ const BookingForm = ({ spaceId, spaceName, price, timeSlots, operatingHours }) =
     if (!validateTimes(data.startTime, data.endTime)) {
       setError('endTime', {
         type: 'manual',
-        message: 'End time must be after start time'
+        message: 'End time must be different from start time'
       });
       return;
     }
 
-    if (operatingHours !== '24/7' && operatingHours !== 'Open 24/7') {
+    if (!isOpen24Hours && isOvernight(data.startTime, data.endTime)) {
+      setError('endTime', {
+        type: 'manual',
+        message: 'This space closes at night. Choose an end time later than the start time.'
+      });
+      return;
+    }
+
+    if (!isOpen24Hours) {
       if (!isTimeWithinOperatingHours(data.startTime)) {
         setError('startTime', {
           type: 'manual',
@@ -233,6 +234,14 @@ const BookingForm = ({ spaceId, spaceName, price, timeSlots, operatingHours }) =
       }
     }
 
+    if (isBookingConflict(spaceId, data.bookingDate, data.startTime, data.endTime)) {
+      setError('startTime', {
+        type: 'manual',
+        message: 'This time overlaps an existing booking for this space. Please choose another time.'
+      });
+      return;
+    }
+
     const booking = {
       spaceId,
       spaceName,
@@ -243,7 +252,7 @@ const BookingForm = ({ spaceId, spaceName, price, timeSlots, operatingHours }) =
       startTime: data.startTime,
       endTime: data.endTime,
       guests: parseInt(data.guests),
-      totalPrice: calculateTotal(),
+      totalPrice: getPriceSummary(data.startTime, data.endTime, price, data.guests).total,
       timeSlot: selectedTimeSlot,
       status: 'confirmed'
     };
@@ -424,21 +433,13 @@ const BookingForm = ({ spaceId, spaceName, price, timeSlots, operatingHours }) =
               <div className="d-flex justify-content-between mb-1">
                 <span>Duration:</span>
                 <span>
-                  {watchStartTime && watchEndTime ? (
-                    (() => {
-                      const start = parseInt(watchStartTime.split(':')[0]);
-                      const end = parseInt(watchEndTime.split(':')[0]);
-                      let hours = end - start;
-                      if (hours < 0) hours += 24;
-                      return Math.max(hours, 1) + ' hours';
-                    })()
-                  ) : '1 hour'}
+                  {formatDuration(priceSummary.durationMinutes)} (billed as {billedLabel})
                 </span>
               </div>
               <hr />
               <div className="d-flex justify-content-between fw-bold">
                 <span>Total:</span>
-                <span className="text-success">₱{calculateTotal()}</span>
+                <span className="text-success">₱{priceSummary.total}</span>
               </div>
             </div>
             
