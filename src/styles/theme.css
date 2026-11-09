@@ -214,6 +214,7 @@ a:hover {
 .form-select {
   border-color: var(--ss-input-border);
   border-radius: var(--ss-radius-sm);
+  background-color: var(--ss-surface);
   color: var(--ss-ink);
 }
 

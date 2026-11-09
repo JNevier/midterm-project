@@ -1,47 +1,93 @@
-.booking-input {
-  /* Standard appearance for all browsers */
-  appearance: menulist;
-  -webkit-appearance: menulist;
-  -moz-appearance: menulist;
-  
-  padding: 0.5rem 0.75rem;
-  border: 1px solid var(--ss-input-border);
-  border-radius: 0.375rem;
-  background-color: white;
+.booking-card {
+  overflow: hidden;
 }
 
-/* Fix for date and time input arrows */
-.booking-input::-webkit-calendar-picker-indicator {
-  cursor: pointer;
-  padding: 0.25rem;
-  background-color: #dee2e6;
-  border-radius: 0.25rem;
+.booking-card__body {
+  padding: 1.5rem;
 }
 
-.booking-input::-webkit-inner-spin-button {
-  opacity: 1;
-  cursor: pointer;
+.booking-card__title {
+  margin-bottom: 1rem;
+  font-size: 1.375rem;
+  font-weight: 700;
 }
 
-/* Focus states */
-.booking-input:focus {
+.booking-card__note {
+  margin: 1rem 0;
+  color: var(--ss-muted);
+  font-size: 0.9375rem;
+}
+
+.booking-field {
+  margin-bottom: 1.125rem;
+}
+
+.booking-help {
+  margin-bottom: 0.625rem;
+  color: var(--ss-muted);
+  font-size: 0.875rem;
+}
+
+/* Quick time slots */
+.booking-slots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.booking-slot {
+  font-weight: 600;
+  white-space: normal;
+  text-align: left;
+}
+
+.booking-slot[aria-pressed="true"] {
+  background-color: var(--ss-primary);
   border-color: var(--ss-primary);
+  color: #fff;
 }
 
-/* Price summary styling */
-.price-summary {
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-  border: 1px solid #dee2e6;
+/* Price summary and booking details */
+.booking-summary {
+  margin: 0 0 1.25rem;
+  padding: 1rem 1.125rem;
+  border-radius: var(--ss-radius);
+  background-color: var(--ss-primary-tint);
 }
 
-.price-summary h6 {
-  color: #495057;
-  margin-bottom: 0.75rem;
+.booking-summary > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-block: 0.25rem;
 }
 
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  .booking-form-container .card-body {
-    padding: 1rem;
+.booking-summary dt {
+  color: var(--ss-muted);
+  font-weight: 500;
+}
+
+.booking-summary dd {
+  margin: 0;
+  color: var(--ss-ink);
+  text-align: right;
+}
+
+.booking-summary__total {
+  margin-top: 0.5rem;
+  padding-top: 0.75rem !important;
+  border-top: 1px solid #C5E3DD;
+}
+
+.booking-summary__total dt,
+.booking-summary__total dd {
+  color: var(--ss-ink);
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+@media (max-width: 767.98px) {
+  .booking-card__body {
+    padding: 1.25rem;
   }
 }
