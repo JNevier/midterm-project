@@ -9,6 +9,9 @@ import SpaceImage from '../../components/SpaceImage';
 import { spacesData } from '../../data/spaces';
 import { formatBookingDate, formatTimeRange } from '../../utils/bookingTime';
 import { getNoticeText, getNoticeTone } from '../../utils/bookingNotice';
+import { getChangeDeadline, getChangeNote, getChangeStatus } from '../../utils/bookingChanges';
+import { useNow } from '../../hooks/useNow';
+import ChangeNote from '../../components/ChangeNote';
 import './Dashboard.css';
 
 const Dashboard = () => {
@@ -20,6 +23,8 @@ const Dashboard = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const headingRef = useRef(null);
+  // One clock for every card, refreshed every 30 seconds so the notes count down
+  const now = useNow(30000);
   const justCancelledRef = useRef(false);
 
   // One notice for the latest action (confirmed, updated or cancelled).
@@ -117,7 +122,6 @@ const Dashboard = () => {
         <>
           <ul className="dashboard__list">
             {sortedBookings.map(booking => {
-              const now = new Date();
               const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
               const bookingDate = new Date(booking.bookingDate + 'T00:00:00'); // Add time to avoid timezone issues
@@ -153,6 +157,9 @@ const Dashboard = () => {
               };
 
               const titleId = `booking-${booking.id}-title`;
+              const noteId = `booking-${booking.id}-change-note`;
+              const changeStatus = isUpcoming ? getChangeStatus(booking, now) : null;
+              const changeNote = changeStatus ? getChangeNote(changeStatus, getChangeDeadline(booking)) : null;
 
               return (
                 <li key={booking.id}>
@@ -197,15 +204,36 @@ const Dashboard = () => {
                       </dl>
 
                       {isUpcoming && (
-                        <div className="booking-item__actions">
-                          <button
-                            type="button"
-                            className="btn btn-outline-danger"
-                            onClick={() => handleCancelClick(booking)}
-                          >
-                            Cancel booking
-                          </button>
-                        </div>
+                        <>
+                          <div className="booking-item__actions">
+                            {changeStatus.canChange ? (
+                              <Link to={`/dashboard/my-bookings/${booking.id}/change`} className="btn btn-outline-primary">
+                                Change booking
+                              </Link>
+                            ) : (
+                              // A link cannot be disabled; this button stays reachable by
+                              // keyboard and screen readers and its note gives the reason
+                              <button
+                                type="button"
+                                className="btn booking-item__change-disabled"
+                                aria-disabled="true"
+                                aria-describedby={changeNote ? noteId : undefined}
+                              >
+                                Change booking
+                              </button>
+                            )}
+                            <button
+                              type="button"
+                              className="btn btn-outline-danger"
+                              onClick={() => handleCancelClick(booking)}
+                            >
+                              Cancel booking
+                            </button>
+                          </div>
+                          <div className="booking-item__note">
+                            <ChangeNote note={changeNote} id={noteId} />
+                          </div>
+                        </>
                       )}
                     </div>
                   </article>
