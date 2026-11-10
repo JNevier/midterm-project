@@ -53,8 +53,8 @@ export const BookingProvider = ({ children }) => {
   };
 
   // True when the time overlaps any confirmed booking for this space, by anyone
-  const isBookingConflict = (spaceId, bookingDate, startTime, endTime) => {
-    return hasBookingConflict(bookings, { spaceId, bookingDate, startTime, endTime });
+  const isBookingConflict = (spaceId, bookingDate, startTime, endTime, ignoreBookingId = null) => {
+    return hasBookingConflict(bookings, { spaceId, bookingDate, startTime, endTime }, ignoreBookingId);
   };
 
   const value = {

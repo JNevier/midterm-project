@@ -4,14 +4,16 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { useAuth } from '../../contexts/AuthContext';
 import { useBooking } from '../../contexts/BookingContext';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { bookingSchema, validateTimes } from '../../utils/validationSchemas';
-import { getPriceSummary, formatDuration, isOvernight, formatBookingDate, formatTimeRange } from '../../utils/bookingTime';
+import { bookingSchema } from '../../utils/validationSchemas';
+import { getPriceSummary, formatDuration, formatBookingDate, formatTimeRange } from '../../utils/bookingTime';
 import { parseTimeSlot } from '../../utils/timeSlots';
+import { parseOperatingHours } from '../../utils/operatinghours';
+import { checkBookingRequest } from '../../utils/bookingRules';
 import './BookingForm.css';
 
 const BookingForm = ({ spaceId, spaceName, price, timeSlots, operatingHours }) => {
   const { user, isAuthenticated } = useAuth();
-  const { addBooking, hasUserBookedSpace, getUserBookingForSpace, isBookingConflict } = useBooking();
+  const { bookings, addBooking, getUserBookingForSpace } = useBooking();
   const navigate = useNavigate();
   const location = useLocation();
   const [selectedTimeSlot, setSelectedTimeSlot] = useState(null);
@@ -50,44 +52,7 @@ const BookingForm = ({ spaceId, spaceName, price, timeSlots, operatingHours }) =
   const watchEndTime = watch('endTime');
   const watchGuests = watch('guests');
 
-  const parseOperatingHours = (hours) => {
-    if (hours === '24/7' || hours === 'Open 24/7') {
-      return { start: '00:00', end: '23:59' };
-    }
-    
-    const match = hours.match(/(\d+):?(\d*)\s*(AM|PM)?\s*-\s*(\d+):?(\d*)\s*(AM|PM)?/i);
-    if (match) {
-      let startHour = parseInt(match[1]);
-      const startMin = match[2] ? parseInt(match[2]) : 0;
-      const startPeriod = match[3]?.toUpperCase();
-      let endHour = parseInt(match[4]);
-      const endMin = match[5] ? parseInt(match[5]) : 0;
-      const endPeriod = match[6]?.toUpperCase();
-      
-      if (startPeriod === 'PM' && startHour !== 12) startHour += 12;
-      if (startPeriod === 'AM' && startHour === 12) startHour = 0;
-      if (endPeriod === 'PM' && endHour !== 12) endHour += 12;
-      if (endPeriod === 'AM' && endHour === 12) endHour = 0;
-      
-      return {
-        start: `${startHour.toString().padStart(2, '0')}:${startMin.toString().padStart(2, '0')}`,
-        end: `${endHour.toString().padStart(2, '0')}:${endMin.toString().padStart(2, '0')}`
-      };
-    }
-    
-    return { start: '09:00', end: '21:00' };
-  };
-
   const operatingHoursParsed = parseOperatingHours(operatingHours || '9:00 AM - 9:00 PM');
-  const isOpen24Hours = operatingHours === '24/7' || operatingHours === 'Open 24/7';
-
-  // Validate time against operating hours
-  const isTimeWithinOperatingHours = (time) => {
-    if (operatingHours === '24/7' || operatingHours === 'Open 24/7') {
-      return true; // 24/7 spaces accept any time
-    }
-    return time >= operatingHoursParsed.start && time <= operatingHoursParsed.end;
-  };
 
   const handleTimeSlotSelect = (slot) => {
     setSelectedTimeSlot(slot);
@@ -108,50 +73,19 @@ const BookingForm = ({ spaceId, spaceName, price, timeSlots, operatingHours }) =
       return;
     }
 
-    if (hasUserBookedSpace(spaceId, user.email)) {
-      setWarning('You already have a booking for this space. Cancel it from your bookings page to make a new one.');
-      return;
-    }
-
-    if (!validateTimes(data.startTime, data.endTime)) {
-      setError('endTime', {
-        type: 'manual',
-        message: 'End time must be different from start time'
-      });
-      return;
-    }
-
-    if (!isOpen24Hours && isOvernight(data.startTime, data.endTime)) {
-      setError('endTime', {
-        type: 'manual',
-        message: 'This space closes at night. Choose an end time later than the start time.'
-      });
-      return;
-    }
-
-    if (!isOpen24Hours) {
-      if (!isTimeWithinOperatingHours(data.startTime)) {
-        setError('startTime', {
-          type: 'manual',
-          message: `Start time must be within operating hours (${operatingHours})`
-        });
-        return;
+    // All booking rules live in one shared function (also used by the change form)
+    const problem = checkBookingRequest({
+      space: { id: spaceId, hours: operatingHours },
+      values: data,
+      bookings,
+      userEmail: user.email,
+    });
+    if (problem) {
+      if (problem.field === 'form') {
+        setWarning(problem.message);
+      } else {
+        setError(problem.field, { type: 'manual', message: problem.message });
       }
-
-      if (!isTimeWithinOperatingHours(data.endTime)) {
-        setError('endTime', {
-          type: 'manual',
-          message: `End time must be within operating hours (${operatingHours})`
-        });
-        return;
-      }
-    }
-
-    if (isBookingConflict(spaceId, data.bookingDate, data.startTime, data.endTime)) {
-      setError('startTime', {
-        type: 'manual',
-        message: 'This time overlaps an existing booking for this space. Please choose another time.'
-      });
       return;
     }
 

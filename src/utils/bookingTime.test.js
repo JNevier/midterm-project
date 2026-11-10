@@ -89,6 +89,15 @@ describe('hasBookingConflict', () => {
     expect(check({ spaceId: 3, bookingDate: '2026-11-10', startTime: '09:00', endTime: '13:00' })).toBe(false);
   });
 
+  it('ignores the booking with ignoreBookingId (it never conflicts with itself)', () => {
+    const withIds = existing.map((b, i) => ({ ...b, id: i + 1 }));
+    const same = { spaceId: 1, bookingDate: '2026-11-10', startTime: '10:00', endTime: '12:00' };
+    expect(hasBookingConflict(withIds, same)).toBe(true);
+    expect(hasBookingConflict(withIds, same, 1)).toBe(false);
+    // ignoring a different booking does not hide this overlap
+    expect(hasBookingConflict(withIds, same, 2)).toBe(true);
+  });
+
   it('ignores bookings that are not confirmed', () => {
     const cancelled = [{ ...existing[0], status: 'cancelled' }];
     expect(
