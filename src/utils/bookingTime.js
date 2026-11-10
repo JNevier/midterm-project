@@ -59,10 +59,12 @@ export const rangesOverlap = (a, b) => a.start < b.end && b.start < a.end;
 
 // True when the new booking overlaps any confirmed booking for the same space,
 // by any user, on any date (overnight bookings included).
-export const hasBookingConflict = (bookings, newBooking) => {
+// ignoreBookingId: a booking being changed never conflicts with itself.
+export const hasBookingConflict = (bookings, newBooking, ignoreBookingId = null) => {
   const newRange = getBookingRange(newBooking);
   return bookings.some(
     (booking) =>
+      (ignoreBookingId == null || booking.id !== ignoreBookingId) &&
       booking.spaceId === newBooking.spaceId &&
       booking.status === 'confirmed' &&
       rangesOverlap(getBookingRange(booking), newRange)
