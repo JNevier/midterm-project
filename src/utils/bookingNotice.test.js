@@ -4,7 +4,13 @@ import { getNoticeText, getNoticeTone } from './bookingNotice';
 const base = { spaceName: 'The Study Nook', bookingDate: '2026-11-17', startTime: '09:00', endTime: '13:00' };
 
 describe('getNoticeText', () => {
-  it('describes a confirmed booking', () => {
+  it('adds the change deadline to a confirmed booking', () => {
+    const deadline = new Date(2026, 10, 17, 7, 0).toISOString();
+    expect(getNoticeText({ ...base, type: 'confirmed', deadline }))
+      .toBe('Booking confirmed: The Study Nook on Tue, Nov 17, 2026, 9:00 AM to 1:00 PM. You can change it up to 2 times until Tue, Nov 17, 2026, 7:00 AM.');
+  });
+
+  it('describes a confirmed booking without a deadline (older notice)', () => {
     expect(getNoticeText({ ...base, type: 'confirmed' }))
       .toBe('Booking confirmed: The Study Nook on Tue, Nov 17, 2026, 9:00 AM to 1:00 PM.');
   });

@@ -5,10 +5,15 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useBooking } from '../../contexts/BookingContext';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { bookingSchema } from '../../utils/validationSchemas';
-import { getPriceSummary, formatDuration, formatBookingDate, formatTimeRange } from '../../utils/bookingTime';
+import { getPriceSummary, formatDuration, formatBookingDate, formatTimeRange, formatDateTime } from '../../utils/bookingTime';
 import { parseTimeSlot } from '../../utils/timeSlots';
 import { parseOperatingHours } from '../../utils/operatinghours';
 import { checkBookingRequest } from '../../utils/bookingRules';
+import {
+  CHANGE_CUTOFF_HOURS, CHANGE_GRACE_MINUTES, MAX_CHANGES, getBookingStart, getChangeDeadline,
+} from '../../utils/bookingChanges';
+import { useNow } from '../../hooks/useNow';
+import { FaInfoCircle } from 'react-icons/fa';
 import './BookingForm.css';
 
 const BookingForm = ({ spaceId, spaceName, price, timeSlots, operatingHours }) => {
@@ -18,6 +23,7 @@ const BookingForm = ({ spaceId, spaceName, price, timeSlots, operatingHours }) =
   const location = useLocation();
   const [selectedTimeSlot, setSelectedTimeSlot] = useState(null);
   const [warning, setWarning] = useState(null);
+  const now = useNow(30000);
   const fieldId = useId();
   const ids = {
     heading: `${fieldId}-heading`,
@@ -51,6 +57,17 @@ const BookingForm = ({ spaceId, spaceName, price, timeSlots, operatingHours }) =
   const watchStartTime = watch('startTime');
   const watchEndTime = watch('endTime');
   const watchGuests = watch('guests');
+  const watchBookingDate = watch('bookingDate');
+
+  // The change deadline this slot would get if it were booked now
+  const changeDeadline = (() => {
+    const filled = /^\d{4}-\d{2}-\d{2}$/.test(watchBookingDate || '') && /^\d{2}:\d{2}$/.test(watchStartTime || '');
+    if (!filled) return null;
+    const draft = { bookingDate: watchBookingDate, startTime: watchStartTime, createdAt: now.toISOString(), status: 'confirmed' };
+    const start = getBookingStart(draft);
+    if (Number.isNaN(start.getTime()) || start <= now) return null; // only for a slot that is still ahead
+    return getChangeDeadline(draft);
+  })();
 
   const operatingHoursParsed = parseOperatingHours(operatingHours || '9:00 AM - 9:00 PM');
 
@@ -105,11 +122,13 @@ const BookingForm = ({ spaceId, spaceName, price, timeSlots, operatingHours }) =
     };
 
     addBooking(booking);
+    const deadline = getChangeDeadline({ ...booking, createdAt: new Date().toISOString() });
     // The bookings page shows the confirmation from this router state
     navigate('/dashboard/my-bookings', {
       state: {
         notice: {
           type: 'confirmed',
+          deadline: deadline.toISOString(),
           spaceName,
           bookingDate: data.bookingDate,
           startTime: data.startTime,
@@ -171,7 +190,7 @@ const BookingForm = ({ spaceId, spaceName, price, timeSlots, operatingHours }) =
             </div>
           </dl>
           <p className="booking-card__note">
-            You can only have one booking per space. You can cancel it from your bookings page.
+            You can only have one booking per space. You can change or cancel it from your bookings page.
           </p>
           <Link to="/dashboard/my-bookings" className="btn btn-primary w-100">
             Go to my bookings
@@ -276,6 +295,22 @@ const BookingForm = ({ spaceId, spaceName, price, timeSlots, operatingHours }) =
               {...fieldA11y('guests')}
             />
             {fieldError('guests')}
+          </div>
+
+          {/* The change policy, before booking. Not a live region: nothing is announced while typing */}
+          <div className="booking-policy">
+            <p className="ss-note">
+              <FaInfoCircle aria-hidden="true" />
+              <span>
+                After booking, you can change it up to {MAX_CHANGES} times: until {CHANGE_CUTOFF_HOURS} hours before
+                it starts, or for {CHANGE_GRACE_MINUTES} minutes after you book if that gives you more time.
+              </span>
+            </p>
+            {changeDeadline && (
+              <p className="ss-note booking-policy__deadline">
+                If you book this slot, you can change it until {formatDateTime(changeDeadline)}.
+              </p>
+            )}
           </div>
 
           <dl className="booking-summary booking-summary--price">
