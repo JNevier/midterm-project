@@ -9,6 +9,23 @@ describe('getNoticeText', () => {
       .toBe('Booking confirmed: The Study Nook on Tue, Nov 17, 2026, 9:00 AM to 1:00 PM.');
   });
 
+  it('describes an updated booking that can still be changed', () => {
+    const deadline = new Date(2026, 10, 17, 7, 0).toISOString();
+    expect(getNoticeText({ ...base, type: 'updated', canChange: true, changesLeft: 1, deadline }))
+      .toBe('Booking updated: The Study Nook on Tue, Nov 17, 2026, 9:00 AM to 1:00 PM. You can change it 1 more time until Tue, Nov 17, 2026, 7:00 AM.');
+    expect(getNoticeText({ ...base, type: 'updated', canChange: true, changesLeft: 2, deadline }))
+      .toContain('You can change it 2 more times until');
+  });
+
+  it('describes an updated booking that cannot be changed again', () => {
+    expect(getNoticeText({ ...base, type: 'updated', canChange: false, changesLeft: 0, deadline: null }))
+      .toBe("Booking updated: The Study Nook on Tue, Nov 17, 2026, 9:00 AM to 1:00 PM. It can't be changed again.");
+  });
+
+  it('updated notices are green', () => {
+    expect(getNoticeTone({ type: 'updated' })).toBe('success');
+  });
+
   it('describes a cancelled booking', () => {
     expect(getNoticeText({ ...base, type: 'cancelled' }))
       .toBe('Booking cancelled: The Study Nook on Tue, Nov 17, 2026, 9:00 AM to 1:00 PM.');
