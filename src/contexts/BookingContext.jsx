@@ -26,6 +26,14 @@ export const BookingProvider = ({ children }) => {
     return newBooking;
   };
 
+  // Replaces one booking with its changed details and leaves the others alone.
+  // It does not decide whether a change is allowed; the caller does.
+  const updateBooking = (bookingId, changes) => {
+    setBookings(prev => prev.map(booking => (
+      booking.id === bookingId ? { ...booking, ...changes } : booking
+    )));
+  };
+
   const cancelBooking = (bookingId) => {
     setBookings(prev => prev.filter(booking => booking.id !== bookingId));
   };
@@ -60,6 +68,7 @@ export const BookingProvider = ({ children }) => {
   const value = {
     bookings,
     addBooking,
+    updateBooking,
     cancelBooking,
     getUserBookings,
     isBookingConflict,
