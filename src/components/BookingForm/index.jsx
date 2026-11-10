@@ -174,7 +174,8 @@ const BookingForm = ({ spaceId, spaceName, price, timeSlots, operatingHours }) =
     // The bookings page shows the confirmation from this router state
     navigate('/dashboard/my-bookings', {
       state: {
-        bookingConfirmed: {
+        notice: {
+          type: 'confirmed',
           spaceName,
           bookingDate: data.bookingDate,
           startTime: data.startTime,

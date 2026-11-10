@@ -8,6 +8,7 @@ import ConfirmationModal from '../../components/ConfirmationModal';
 import SpaceImage from '../../components/SpaceImage';
 import { spacesData } from '../../data/spaces';
 import { formatBookingDate, formatTimeRange } from '../../utils/bookingTime';
+import { getNoticeText, getNoticeTone } from '../../utils/bookingNotice';
 import './Dashboard.css';
 
 const Dashboard = () => {
@@ -21,11 +22,12 @@ const Dashboard = () => {
   const headingRef = useRef(null);
   const justCancelledRef = useRef(false);
 
-  // A new booking arrives in router state from the booking form. Keep it for
-  // this visit, then clear the state so a refresh does not show it again.
-  const [confirmation, setConfirmation] = useState(() => location.state?.bookingConfirmed ?? null);
+  // One notice for the latest action (confirmed, updated or cancelled).
+  // A new booking arrives in router state from the booking form: keep it for
+  // this visit, then clear the router state so a refresh does not show it again.
+  const [notice, setNotice] = useState(() => location.state?.notice ?? null);
   useEffect(() => {
-    if (location.state?.bookingConfirmed) {
+    if (location.state?.notice) {
       navigate(location.pathname, { replace: true, state: null });
     }
   }, [location.state, location.pathname, navigate]);
@@ -51,6 +53,14 @@ const Dashboard = () => {
   const handleConfirmCancel = () => {
     if (selectedBooking) {
       cancelBooking(selectedBooking.id);
+      // The cancellation replaces any earlier notice (for example "Booking confirmed")
+      setNotice({
+        type: 'cancelled',
+        spaceName: selectedBooking.spaceName,
+        bookingDate: selectedBooking.bookingDate,
+        startTime: selectedBooking.startTime,
+        endTime: selectedBooking.endTime,
+      });
       justCancelledRef.current = true;
       setShowModal(false);
       setSelectedBooking(null);
@@ -85,17 +95,17 @@ const Dashboard = () => {
         <p className="dashboard__welcome">{welcomeLine}</p>
       </div>
 
-      {confirmation && (
-        <div className="alert alert-success dashboard__alert" role="status">
-          <p className="mb-0">
-            Booking confirmed: {confirmation.spaceName} on {formatBookingDate(confirmation.bookingDate)},{' '}
-            {formatTimeRange(confirmation.startTime, confirmation.endTime)}.
-          </p>
-          <button type="button" className="dashboard__dismiss" aria-label="Dismiss" onClick={() => setConfirmation(null)}>
-            <FaTimes aria-hidden="true" />
-          </button>
-        </div>
-      )}
+      {/* Always in the page, so screen readers announce each new notice */}
+      <div className="dashboard__notice-slot" role="status" aria-live="polite">
+        {notice && (
+          <div className={`alert dashboard__alert ${getNoticeTone(notice) === 'neutral' ? 'alert-neutral' : 'alert-success'}`}>
+            <p className="mb-0">{getNoticeText(notice)}</p>
+            <button type="button" className="dashboard__dismiss" aria-label="Dismiss" onClick={() => setNotice(null)}>
+              <FaTimes aria-hidden="true" />
+            </button>
+          </div>
+        )}
+      </div>
 
       {count === 0 ? (
         <div className="dashboard__empty ss-card">

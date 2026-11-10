@@ -21,6 +21,7 @@
   --ss-danger-tint: #FDECEA;
   --ss-amber: #92400E;
   --ss-amber-tint: #FEF3C7;
+  --ss-neutral-tint: #EEF1F5;
   --ss-radius-sm: 8px;
   --ss-radius: 12px;
   --ss-radius-lg: 16px;
@@ -257,6 +258,14 @@ a:hover {
   --bs-alert-link-color: var(--ss-amber);
 }
 
+/* Neutral notice, for example a cancelled booking (ink on the neutral tint: 15.8:1) */
+.alert-neutral {
+  --bs-alert-color: var(--ss-ink);
+  --bs-alert-bg: var(--ss-neutral-tint);
+  --bs-alert-border-color: var(--ss-border);
+  --bs-alert-link-color: var(--ss-ink);
+}
+
 .alert-danger {
   --bs-alert-color: var(--ss-danger);
   --bs-alert-bg: var(--ss-danger-tint);
@@ -309,6 +318,11 @@ a:hover {
 .ss-chip-amber {
   background-color: var(--ss-amber-tint);
   color: var(--ss-amber);
+}
+
+.ss-chip-neutral {
+  background-color: var(--ss-neutral-tint);
+  color: var(--ss-muted);
 }
 
 .ss-card {

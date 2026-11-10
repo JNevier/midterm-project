@@ -42,12 +42,12 @@
   border: 0;
   border-radius: var(--ss-radius-sm);
   background: transparent;
-  color: var(--ss-success);
+  color: inherit;
   transition: var(--ss-transition);
 }
 
 .dashboard__dismiss:hover {
-  background-color: rgba(22, 101, 52, 0.1);
+  background-color: rgba(15, 23, 42, 0.06);
 }
 
 /* Empty state */
@@ -121,11 +121,6 @@
   color: var(--ss-muted);
   font-size: 0.875rem;
   font-weight: 500;
-}
-
-.ss-chip-neutral {
-  background-color: #EEF1F5;
-  color: var(--ss-muted);
 }
 
 .booking-item__details {
