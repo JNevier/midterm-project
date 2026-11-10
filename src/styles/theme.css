@@ -302,6 +302,20 @@ input.form-control:focus-within {
   outline-offset: 2px;
 }
 
+/* iPhone and iPad Safari centre the value of date and time fields; line it up
+   with the other fields. Only applies on iOS (desktop browsers keep their look). */
+@supports (-webkit-touch-callout: none) {
+  input[type="date"].form-control,
+  input[type="time"].form-control {
+    text-align: left;
+  }
+
+  input[type="date"].form-control::-webkit-date-and-time-value,
+  input[type="time"].form-control::-webkit-date-and-time-value {
+    text-align: left;
+  }
+}
+
 /* Text inputs show the ring on every focus, buttons only on keyboard focus */
 .btn:focus:not(:focus-visible),
 .navbar-toggler:focus:not(:focus-visible),
