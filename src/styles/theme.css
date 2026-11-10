@@ -332,6 +332,42 @@ a:hover {
   box-shadow: var(--ss-shadow-sm);
 }
 
+/* The change-deadline note (booking cards and the change page) */
+.ss-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin: 0;
+  color: var(--ss-muted);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.ss-note svg {
+  flex-shrink: 0;
+  margin-top: 0.2em;
+}
+
+.ss-note--warning {
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--ss-radius-sm);
+  background-color: var(--ss-amber-tint);
+  color: var(--ss-amber);
+  font-weight: 600;
+}
+
+.ss-note--banner {
+  padding: 0.75rem 1rem;
+  border-radius: var(--ss-radius);
+  background-color: var(--ss-primary-tint);
+  color: var(--ss-ink);
+}
+
+.ss-note--banner.ss-note--warning {
+  background-color: var(--ss-amber-tint);
+  color: var(--ss-amber);
+}
+
 .skip-link {
   position: absolute;
   top: 0.5rem;

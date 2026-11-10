@@ -10,6 +10,7 @@ import SpaceDetail from './pages/SpaceDetail';
 import Dashboard from './pages/Dashboard';
 import Login from './pages/Login';
 import NotFound from './pages/NotFound';
+import ChangeBooking from './pages/ChangeBooking';
 import ScrollToTop from './components/ScrollToTop';
 
 // Moves keyboard focus past the header to the page content
@@ -43,6 +44,14 @@ function App() {
                       <Dashboard />
                     </ProtectedRoute>
                   } 
+                />
+                <Route
+                  path="/dashboard/my-bookings/:bookingId/change"
+                  element={
+                    <ProtectedRoute>
+                      <ChangeBooking />
+                    </ProtectedRoute>
+                  }
                 />
                 <Route path="*" element={<NotFound />} />
               </Routes>
