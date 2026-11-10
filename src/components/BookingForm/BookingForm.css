@@ -47,6 +47,19 @@
   color: #fff;
 }
 
+/* Change policy line, above the price */
+.booking-policy {
+  display: grid;
+  gap: 0.375rem;
+  margin-bottom: 1rem;
+}
+
+.booking-policy__deadline {
+  padding-left: calc(0.875rem + 0.5rem); /* lines up with the text after the icon */
+  color: var(--ss-ink);
+  font-weight: 600;
+}
+
 /* Price summary and booking details */
 .booking-summary {
   margin: 0 0 1.25rem;
