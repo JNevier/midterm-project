@@ -142,12 +142,38 @@
 }
 
 .booking-item__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
   margin-top: 1.25rem;
+}
+
+/* Change booking when it is not allowed: greyed out, still focusable,
+   and it looks the same on hover and press (muted on the neutral tint: 6.7:1) */
+.btn.booking-item__change-disabled {
+  --bs-btn-color: var(--ss-muted);
+  --bs-btn-bg: var(--ss-neutral-tint);
+  --bs-btn-border-color: var(--ss-border);
+  --bs-btn-hover-color: var(--ss-muted);
+  --bs-btn-hover-bg: var(--ss-neutral-tint);
+  --bs-btn-hover-border-color: var(--ss-border);
+  --bs-btn-active-color: var(--ss-muted);
+  --bs-btn-active-bg: var(--ss-neutral-tint);
+  --bs-btn-active-border-color: var(--ss-border);
+  cursor: not-allowed;
+}
+
+.booking-item__note {
+  margin-top: 0.75rem;
 }
 
 @media (max-width: 575.98px) {
   .booking-item__details {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  .booking-item__actions {
+    flex-direction: column;
   }
 
   .booking-item__actions .btn,
