@@ -8,6 +8,7 @@ import {
   formatBookingDate,
   formatTime12h,
   formatTimeRange,
+  formatDateTime,
 } from './bookingTime';
 
 describe('getDurationMinutes', () => {
@@ -138,5 +139,12 @@ describe('formatTimeRange', () => {
 
   it('marks an overnight end as the next day', () => {
     expect(formatTimeRange('22:00', '06:00')).toBe('10:00 PM to 6:00 AM (next day)');
+  });
+});
+
+describe('formatDateTime', () => {
+  it('formats a local date and time', () => {
+    expect(formatDateTime(new Date(2026, 10, 10, 15, 0))).toBe('Tue, Nov 10, 2026, 3:00 PM');
+    expect(formatDateTime(new Date(2026, 10, 17, 0, 5))).toBe('Tue, Nov 17, 2026, 12:05 AM');
   });
 });

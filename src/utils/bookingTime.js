@@ -95,3 +95,11 @@ export const formatTime12h = (time) => {
 // "9:00 AM to 1:00 PM", with " (next day)" for an overnight booking
 export const formatTimeRange = (startTime, endTime) =>
   `${formatTime12h(startTime)} to ${formatTime12h(endTime)}${isOvernight(startTime, endTime) ? ' (next day)' : ''}`;
+
+// A local Date -> "Tue, Nov 10, 2026, 3:00 PM"
+export const formatDateTime = (date) => {
+  const pad = (n) => String(n).padStart(2, '0');
+  const day = `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+  const time = `${pad(date.getHours())}:${pad(date.getMinutes())}`;
+  return `${formatBookingDate(day)}, ${formatTime12h(time)}`;
+};
