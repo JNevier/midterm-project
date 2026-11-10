@@ -294,6 +294,14 @@ a:hover {
   box-shadow: none;
 }
 
+/* The calendar and clock buttons inside date and time inputs (Chrome, Edge)
+   are reachable with Tab but cannot be styled themselves; keep the ring on the
+   whole field while one of them has focus */
+input.form-control:focus-within {
+  outline: 3px solid var(--ss-primary);
+  outline-offset: 2px;
+}
+
 /* Text inputs show the ring on every focus, buttons only on keyboard focus */
 .btn:focus:not(:focus-visible),
 .navbar-toggler:focus:not(:focus-visible),
